@@ -33,12 +33,7 @@ export class AccessTokenGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(
         token,
         this.jwtConfiguration,
-      )
-
-      const isBlacklisted = await this.redis.get(`blacklist:${payload.sub}`);
-      if (isBlacklisted) {
-        throw new UnauthorizedException('Token is blacklisted');
-      }
+      );
 
       request[REQUEST_USER_KEY] = payload;
     } catch (error) {
