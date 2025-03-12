@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards, Query } from '@nestjs/common';
 import { Express } from 'express';
 import { SlidesShowService } from './slides-show.service';
 import { CreateSlidesShowDto } from './dto/create-slides-show.dto';
@@ -13,33 +13,38 @@ export class SlidesShowController {
   constructor(private readonly slidesShowService: SlidesShowService) {}
 
   @Post()
-  @Permissions('create-slides-show')
+  @Permissions('create-slide-show')
   @UseInterceptors(FileInterceptor('image'))
   create(@Body() createSlidesShowDto: CreateSlidesShowDto, @UploadedFile() image: Express.Multer.File) {
     return this.slidesShowService.create(createSlidesShowDto, image);
   }
 
   @Get()
-  @Permissions('read-slides-show')
-  findAll() {
-    return this.slidesShowService.findAll();
+  @Permissions('list-slides-show')
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('order') order?: string,
+    @Query('direction') direction?: string,
+  ) {
+    return this.slidesShowService.findAll(page, limit, order, direction);
   }
 
   @Get(':id')
-  @Permissions('read-slides-show')
+  @Permissions('select-slide-show')
   findOne(@Param('id') id: string) {
     return this.slidesShowService.findOne(+id);
   }
 
   @Patch(':id')
-  @Permissions('update-slides-show')
+  @Permissions('update-slide-show')
   @UseInterceptors(FileInterceptor('image'))
   update(@Param('id') id: string, @Body() updateSlidesShowDto: UpdateSlidesShowDto, @UploadedFile() image: Express.Multer.File) {
     return this.slidesShowService.update(+id, updateSlidesShowDto, image);
   }
 
   @Delete(':id')
-  @Permissions('delete-slides-show')
+  @Permissions('delete-slide-show')
   remove(@Param('id') id: string) {
     return this.slidesShowService.remove(+id);
   }

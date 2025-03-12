@@ -19,7 +19,7 @@ export class PermissionsController {
   }
 
   @Get()
-  @Permissions('read-permission')
+  @Permissions('list-permissions')
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -30,7 +30,7 @@ export class PermissionsController {
   }
 
   @Get(':id')
-  @Permissions('read-permission')
+  @Permissions('select-permission')
   findOne(@Param('id') id: string) {
     return this.permissionsService.findOne(+id);
   }

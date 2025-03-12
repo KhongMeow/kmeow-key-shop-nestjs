@@ -13,7 +13,6 @@ export class BalancesService {
   async create(user: User): Promise<Balance> {
     try {
       const balance = new Balance();
-      balance.amount = 0;
       balance.user = user;
 
       return await this.balancesRepository.save(balance);
@@ -89,7 +88,7 @@ export class BalancesService {
     try {
       const balance = await this.findOne(id);
 
-      await this.balancesRepository.remove(balance);
+      await this.balancesRepository.softDelete(balance);
 
       return {
         statusCode: 200,

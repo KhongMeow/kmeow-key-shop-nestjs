@@ -9,7 +9,7 @@ export class BalancesController {
   constructor(private readonly balancesService: BalancesService) {}
 
   @Get()
-  @Permissions('read-balance')
+  @Permissions('list-balances')
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -20,7 +20,7 @@ export class BalancesController {
   }
 
   @Get(':id')
-  @Permissions('read-balance')
+  @Permissions('select-balance')
   findOne(@Param('id') id: string) {
     return this.balancesService.findOne(+id);
   }

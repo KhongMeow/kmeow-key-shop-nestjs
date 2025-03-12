@@ -19,7 +19,7 @@ export class RolesController {
   }
 
   @Get()
-  @Permissions('read-role')
+  @Permissions('list-roles')
   async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -30,7 +30,7 @@ export class RolesController {
   }
 
   @Get(':id')
-  @Permissions('read-role')
+  @Permissions('select-role')
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(+id);
   }

@@ -31,48 +31,42 @@ export class SetupService {
     ];
 
     for (const role of defaultRoles) {
-      try {
-        await this.rolesService.create(role);
-      } catch (error) {
-        if (error instanceof ConflictException) {
-          console.log(`Role ${role.name} already exists. Skipping...`);
-        } else {
-          throw error;
-        }
-      }
+      await this.rolesService.create(role);
     }
   }
 
   private async createDefaultPermissions() {
     const defaultPermissions: CreatePermissionDto[] = [
       { name: 'Create Role' },
-      { name: 'Read Role' },
+      { name: 'List Roles' },
+      { name: 'Select Role' },
       { name: 'Update Role' },
       { name: 'Delete Role' },
       { name: 'Create Permission' },
-      { name: 'Read Permission' },
+      { name: 'List Permissions' },
+      { name: 'Select Permission' },
       { name: 'Update Permission' },
       { name: 'Delete Permission' },
       { name: 'Create Role Permission' },
-      { name: 'Read Role Permission' },
+      { name: 'List Role Permissions' },
+      { name: 'Select Role Permission' },
       { name: 'Update Role Permission' },
       { name: 'Delete Role Permission' },
       { name: 'Create User' },
-      { name: 'Read User' },
-      { name: 'Update User' },
+      { name: 'List Users' },
+      { name: 'Select User' },
+      { name: 'Change Role User' },
+      { name: 'Reset Password User' },
       { name: 'Delete User' },
+      { name: 'Create Slid Show' },
+      { name: 'List Slids Show' },
+      { name: 'Select Slid Show' },
+      { name: 'Update Slid Show' },
+      { name: 'Delete Slid Show' },
     ];
 
     for (const permission of defaultPermissions) {
-      try {
-        await this.permissionsService.create(permission);
-      } catch (error) {
-        if (error instanceof ConflictException) {
-          console.log(`Permission "${permission.name}" already exists. Skipping...`);
-        } else {
-          throw error;
-        }
-      }
+      await this.permissionsService.create(permission);
     }
   }
 
@@ -86,15 +80,7 @@ export class SetupService {
     }));
 
     for (const rolePermission of defaultRolePermissions) {
-      try {
-        await this.rolePermissionsService.create(rolePermission);
-      } catch (error) {
-        if (error instanceof ConflictException) {
-          console.log(`Role-Permission already exists. Skipping...`);
-        } else {
-          throw error;
-        }
-      }
+      await this.rolePermissionsService.create(rolePermission);
     }
   }
 
@@ -109,14 +95,6 @@ export class SetupService {
       roleId: adminRole.id,
     };
 
-    try {
-      await this.usersService.create(defaultUser);
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        console.log(`Default user "${defaultUser.username}" already exists. Skipping...`);
-      } else {
-        throw error;
-      }
-    }
+    await this.usersService.create(defaultUser);
   }
 }

@@ -19,7 +19,7 @@ export class UsersController {
   }
 
   @Get()
-  @Permissions('read-user')
+  @Permissions('list-users')
   findAll(
       @Query('page') page?: number,
       @Query('limit') limit?: number,
@@ -30,20 +30,20 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Permissions('read-user')
+  @Permissions('select-user')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
 
   @Post('change-role/:id')
-  @Permissions('update-user')
+  @Permissions('change-role-user')
   @UseInterceptors(FileInterceptor(''))
   changeRole(@Param('id') id: string, @Body() changeRoleDto: ChangeRoleDto) {
     return this.usersService.changeRole(+id, changeRoleDto);
   }
 
   @Post('reset-password/:id')
-  @Permissions('update-user')
+  @Permissions('reset-password-user')
   resetPassword(@Param('id') id: string) {
     return this.usersService.resetPassword(+id);
   }

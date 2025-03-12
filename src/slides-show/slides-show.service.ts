@@ -86,7 +86,7 @@ export class SlidesShowService {
     try {
       const slideShow = await this.findOne(id);
 
-      await this.slidesShowRepository.softRemove(slideShow);
+      await this.slidesShowRepository.softDelete(slideShow);
       return {
         status: 200,
         message: `Deleted slidsshow with id ${id} successfully`,
