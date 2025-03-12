@@ -124,6 +124,15 @@ export class AuthenticationService {
         throw new BadRequestException('Incorrect password');
       }
 
+      const currentAccessToken = await this.redis.get(`accessToken:${user.id}`);
+      const currentRefreshToken = await this.redis.get(`refreshToken:${user.id}`);
+      if (currentAccessToken && currentRefreshToken) {
+        return {
+          accessToken: currentAccessToken,
+          refreshToken: currentRefreshToken,
+        };
+      }
+
       return await this.generateTokens(user);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -166,6 +175,7 @@ export class AuthenticationService {
 
     await this.refreshTokenIdsStorage.insert(user.id, refreshTokenId);
     await this.redis.set(`accessToken:${user.id}`, accessToken, 'EX', this.jwtConfiguration.accessTokenTtl);
+    await this.redis.set(`refreshToken:${user.id}`, refreshToken, 'EX', this.jwtConfiguration.refreshTokenTtl);
     await this.redis.del(`blacklist:${user.id}`);
     
     return {
