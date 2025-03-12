@@ -58,11 +58,11 @@ export class SetupService {
       { name: 'Change Role User' },
       { name: 'Reset Password User' },
       { name: 'Delete User' },
-      { name: 'Create Slid Show' },
-      { name: 'List Slids Show' },
-      { name: 'Select Slid Show' },
-      { name: 'Update Slid Show' },
-      { name: 'Delete Slid Show' },
+      { name: 'Create Slide Show' },
+      { name: 'List Slides Show' },
+      { name: 'Select Slide Show' },
+      { name: 'Update Slide Show' },
+      { name: 'Delete Slide Show' },
     ];
 
     for (const permission of defaultPermissions) {

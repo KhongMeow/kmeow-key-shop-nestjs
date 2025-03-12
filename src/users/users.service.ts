@@ -38,8 +38,8 @@ export class UsersService {
       user.password = await this.hashingService.hash(createUserDto.password);
       user.role = role;
     
-      await this.balancesService.create(user);
       await this.usersRepository.save(user);
+      await this.balancesService.create(user);
 
       return user;
     } catch (error) {

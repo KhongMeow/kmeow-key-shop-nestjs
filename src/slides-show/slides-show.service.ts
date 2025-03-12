@@ -107,7 +107,7 @@ export class SlidesShowService {
         throw new BadRequestException('Only image files are allowed! e.g. jpg, jpeg, png');
       }
 
-      const uploadDir = join(__dirname, '..', '..', 'src', 'images', 'slides-show');
+      const uploadDir = join(__dirname, '..', '..', 'images', 'slides-show');
       const timestamp = Date.now();
       const filePath = join(uploadDir, `${timestamp}-${image.originalname}`);
 
