@@ -18,6 +18,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import Redis from 'ioredis';
 import { SendVerifyEmailDto } from './dto/send-verify-email.dto';
 import { UsersService } from 'src/users/users.service';
+import { BalancesService } from 'src/balances/balances.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -28,6 +29,7 @@ export class AuthenticationService {
     private readonly usersService: UsersService,
     private readonly hashingService: HashingService,
     private readonly rolesService: RolesService,
+    private readonly balancesService: BalancesService,
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY) private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly refreshTokenIdsStorage: RefreshTokenIdsStorage,
@@ -96,6 +98,8 @@ export class AuthenticationService {
       user.role = defualtRole;
 
       await this.usersRepository.save(user);
+      await this.balancesService.create(user);
+
       return user;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -109,7 +113,7 @@ export class AuthenticationService {
           { username: signInDto.usernameOrEmail },
           { email: signInDto.usernameOrEmail },
         ],
-        relations: ['role'],
+        relations: ['role', 'balance'],
       });
 
       if (!user) {

@@ -15,6 +15,7 @@ import jwtConfig from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
 import { MailService } from 'src/mails/mail.service';
 import { UsersModule } from 'src/users/users.module';
+import { BalancesModule } from 'src/balances/balances.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UsersModule } from 'src/users/users.module';
     ConfigModule.forFeature(jwtConfig),
     RolesModule,
     UsersModule,
+    BalancesModule,
   ],
   providers: [
     {

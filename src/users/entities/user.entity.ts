@@ -1,5 +1,6 @@
+import { Balance } from "src/balances/entities/balance.entity";
 import { Role } from "src/roles/entities/role.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -20,6 +21,9 @@ export class User {
 
   @ManyToOne(() => Role, role => role.id)
   role: Role;
+
+  @OneToOne(() => Balance, balance => balance.user)
+  balance: Balance;
   
   @CreateDateColumn()
   created_at: Date;

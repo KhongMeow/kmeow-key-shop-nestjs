@@ -9,6 +9,7 @@ import { IdentityModule } from './identity/identity.module';
 import { GlobalModule } from './global/global.module';
 import { MailModule } from './mails/mail.module';
 import { SetupModule } from './setup/setup.module';
+import { BalancesModule } from './balances/balances.module';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { SetupModule } from './setup/setup.module';
     RolesModule,
     PermissionsModule,
     RolePermissionsModule,
-    IdentityModule
+    IdentityModule,
+    BalancesModule
   ],
 })
 export class AppModule {}

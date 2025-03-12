@@ -11,6 +11,7 @@ import { BcryptService } from 'src/identity/hashing/bcrypt.service';
 import { RolesModule } from 'src/roles/roles.module';
 import { MailService } from 'src/mails/mail.service';
 import { Role } from 'src/roles/entities/role.entity';
+import { BalancesModule } from 'src/balances/balances.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Role } from 'src/roles/entities/role.entity';
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
     RolesModule,
+    BalancesModule,
   ],
   providers: [
     {

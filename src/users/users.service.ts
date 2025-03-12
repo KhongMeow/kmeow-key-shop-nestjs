@@ -12,6 +12,7 @@ import jwtConfig from 'src/identity/config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { MailService } from 'src/mails/mail.service';
 import { ChangeRoleDto } from './dto/change-role.dto';
+import { BalancesService } from 'src/balances/balances.service';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +20,7 @@ export class UsersService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     private readonly hashingService: HashingService,
     private readonly rolesService: RolesService,
+    private readonly balancesService: BalancesService,
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY) private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly mailsService: MailService,
@@ -37,6 +39,8 @@ export class UsersService {
       user.role = role;
     
       await this.usersRepository.save(user);
+      await this.balancesService.create(user);
+
       return user;
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -49,7 +53,7 @@ export class UsersService {
       const take = limit ?? undefined;
 
       const users = await this.usersRepository.find({
-        relations: ['role'],
+        relations: ['role', 'balance'],
         skip,
         take,
         order: {
@@ -67,7 +71,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOne({
         where: { id },
-        relations: ['role'],
+        relations: ['role', 'balance'],
       });
 
       if (!user) {
@@ -126,6 +130,7 @@ export class UsersService {
       const user = await this.findOne(id);
 
       await this.usersRepository.remove(user);
+      await this.balancesService.remove(user.id);
 
       return {
         statusCode: 200,
@@ -140,12 +145,10 @@ export class UsersService {
     try {
       const whereByUsername = await this.usersRepository.findOne({
         where: { username },
-        relations: ['role'],
       });
 
       const whereByEmail = await this.usersRepository.findOne({
         where: { email },
-        relations: ['role'],
       });
 
       if (whereByUsername && whereByEmail) {
