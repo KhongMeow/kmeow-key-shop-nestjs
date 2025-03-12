@@ -46,16 +46,8 @@ export class AuthenticationService {
   async sendVerificationEmail(sendVerifyEmailDto: SendVerifyEmailDto): Promise<void> {
     try {
       const { email } = sendVerifyEmailDto;
-      // Check if a verification code already exists for the email
-      const existingCode = await this.redis.get(`verificationCode:${email}`);
-      
-      let verificationCode: string;
-      if (existingCode) {
-        verificationCode = existingCode; // Use the existing code
-      } else {
-        verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a new 6-digit code
-        await this.redis.set(`verificationCode:${email}`, verificationCode, 'EX', 3600); // Store the code in Redis with a 1-hour expiration
-      }
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a new 6-digit code
+      await this.redis.set(`verificationCode:${email}`, verificationCode, 'EX', 180); // Store the code in Redis with 3mn expiration
   
       await this.mailsService.sendMail(email, 'Email Verification', `Your verification code is: ${verificationCode}`);
     } catch (error) {
@@ -75,7 +67,7 @@ export class AuthenticationService {
       if (storedCode !== code) {
         throw new BadRequestException('Invalid verification code');
       }
-
+      
       await this.redis.del(`verificationCode:${email}`); // Remove the code from Redis after successful verification
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -128,15 +120,6 @@ export class AuthenticationService {
         throw new BadRequestException('Incorrect password');
       }
 
-      const currentAccessToken = await this.redis.get(`accessToken:${user.id}`);
-      const currentRefreshToken = await this.redis.get(`refreshToken:${user.id}`);
-      if (currentAccessToken && currentRefreshToken) {
-        return {
-          accessToken: currentAccessToken,
-          refreshToken: currentRefreshToken,
-        };
-      }
-
       return await this.generateTokens(user);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -149,9 +132,11 @@ export class AuthenticationService {
 
       if (isTokenValid) {
         await this.refreshTokenIdsStorage.invalidate(userId);
-        await this.redis.del(`accessToken:${userId}`);
-        await this.redis.set(`blacklist:${userId}`, 'true', 'EX', this.jwtConfiguration.accessTokenTtl);
-        return { message: 'User signed out' };
+
+        return { 
+          status: 200,
+          message: 'User signed out'
+        };
       } else {
         throw new BadRequestException('User is not signed in');
       }
@@ -178,9 +163,6 @@ export class AuthenticationService {
     ]);
 
     await this.refreshTokenIdsStorage.insert(user.id, refreshTokenId);
-    await this.redis.set(`accessToken:${user.id}`, accessToken, 'EX', this.jwtConfiguration.accessTokenTtl);
-    await this.redis.set(`refreshToken:${user.id}`, refreshToken, 'EX', this.jwtConfiguration.refreshTokenTtl);
-    await this.redis.del(`blacklist:${user.id}`);
     
     return {
       accessToken,

@@ -87,9 +87,9 @@ export class BalancesService {
   async remove(id: number): Promise<{ statusCode: number; message: string }> {
     try {
       const balance = await this.findOne(id);
-
-      await this.balancesRepository.softDelete(balance);
-
+  
+      await this.balancesRepository.softDelete(balance.id);
+  
       return {
         statusCode: 200,
         message: `Balance with id ${id} removed successfully`,

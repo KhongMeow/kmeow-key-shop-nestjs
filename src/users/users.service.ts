@@ -128,10 +128,13 @@ export class UsersService {
   async remove(id: number) {
     try {
       const user = await this.findOne(id);
-
-      await this.usersRepository.softDelete(user);
-      await this.balancesService.remove(user.id);
-
+      // console.log(user.balance);
+      
+      await this.usersRepository.softDelete(user.id);
+      if (user.balance) {
+        await this.balancesService.remove(user.balance.id);
+      }
+  
       return {
         statusCode: 200,
         message: `Deleted user with id ${id} successfully`

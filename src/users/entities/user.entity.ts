@@ -10,10 +10,10 @@ export class User {
   @Column()
   fullname: string;
 
-  @Column({ unique: true })
+  @Column()
   username: string;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column()
@@ -22,7 +22,7 @@ export class User {
   @ManyToOne(() => Role, role => role.id)
   role: Role;
 
-  @OneToOne(() => Balance, balance => balance.user)
+  @OneToOne(() => Balance, balance => balance.user, { cascade: true })
   balance: Balance;
   
   @CreateDateColumn()

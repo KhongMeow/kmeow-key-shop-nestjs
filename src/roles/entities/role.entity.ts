@@ -7,10 +7,10 @@ export class Role {
   @PrimaryGeneratedColumn()
   id: number;
   
-  @Column({ unique: true })
+  @Column()
   name: string;
   
-  @Column({ unique: true })
+  @Column()
   slug: string;
 
   @OneToMany(() => User, user => user.role)

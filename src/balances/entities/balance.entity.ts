@@ -9,7 +9,7 @@ export class Balance {
   @Column("decimal", { precision: 10, scale: 2, default: 0 })
   amount: number;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, user => user.balance)
   @JoinColumn()
   user: User;
 
