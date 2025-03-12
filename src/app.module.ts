@@ -10,6 +10,7 @@ import { GlobalModule } from './global/global.module';
 import { MailModule } from './mails/mail.module';
 import { SetupModule } from './setup/setup.module';
 import { BalancesModule } from './balances/balances.module';
+import { SlidesShowModule } from './slides-show/slides-show.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { BalancesModule } from './balances/balances.module';
     PermissionsModule,
     RolePermissionsModule,
     IdentityModule,
-    BalancesModule
+    BalancesModule,
+    SlidesShowModule
   ],
 })
 export class AppModule {}
