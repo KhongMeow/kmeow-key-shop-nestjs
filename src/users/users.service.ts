@@ -128,9 +128,8 @@ export class UsersService {
   async remove(id: number) {
     try {
       const user = await this.findOne(id);
-      // console.log(user.balance);
       
-      await this.usersRepository.softDelete(user.id);
+      await this.usersRepository.softDelete(id);
       if (user.balance) {
         await this.balancesService.remove(user.balance.id);
       }

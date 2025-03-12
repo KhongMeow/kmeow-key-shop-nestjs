@@ -88,7 +88,7 @@ export class BalancesService {
     try {
       const balance = await this.findOne(id);
   
-      await this.balancesRepository.softDelete(balance.id);
+      await this.balancesRepository.softDelete(id);
   
       return {
         statusCode: 200,
