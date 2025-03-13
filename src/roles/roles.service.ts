@@ -33,7 +33,6 @@ export class RolesService {
       const take = limit ? limit : undefined;
 
       const roles = await this.rolesReposotory.find({
-        relations: ['users', 'rolePermissions.permission'],
         skip,
         take,
         order: {
@@ -55,7 +54,6 @@ export class RolesService {
     try {
       const role = await this.rolesReposotory.findOne({
         where: { id },
-        relations: ['users', 'rolePermissions.permission'],
       });
 
       if (!role) {
@@ -76,6 +74,23 @@ export class RolesService {
 
       if (!role) {
         throw new NotFoundException(`Role with slug ${slug} is not found`);
+      }
+
+      return role;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getPermissionsInRole(id: number): Promise<Role> {
+    try {
+      const role = await this.rolesReposotory.findOne({
+        where: { id },
+        relations: ['rolePermissions.permission'],
+      });
+
+      if (!role) {
+        throw new NotFoundException(`Role with id ${id} is not found`);
       }
 
       return role;

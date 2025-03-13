@@ -1,0 +1,65 @@
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { LicenseKeysService } from './license-keys.service';
+import { CreateLicenseKeyDto } from './dto/create-license-key.dto';
+import { UpdateLicenseKeyDto } from './dto/update-license-key.dto';
+import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
+import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
+
+@UseGuards(PermissionsGuard)
+@Controller('license-keys')
+export class LicenseKeysController {
+  constructor(private readonly licenseKeysService: LicenseKeysService) {}
+
+  @Post()
+  @Permissions('create-license-key')
+  create(@Body() createLicenseKeyDto: CreateLicenseKeyDto) {
+    return this.licenseKeysService.create(createLicenseKeyDto);
+  }
+
+  @Get()
+  @Permissions('list-license-keys')
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('order') order?: string,
+    @Query('direction') direction?: string,
+  ) {
+    return this.licenseKeysService.findAll(page, limit, order, direction);
+  }
+
+  @Get('product/:productId')
+  @Permissions('list-license-keys')
+  findAllByProductId(
+    @Param('productId') productId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('order') order?: string,
+    @Query('direction') direction?: string,
+  ) {
+    return this.licenseKeysService.findAllByProductId(+productId, page, limit, order, direction);
+  }
+
+  @Get(':id')
+  @Permissions('select-license-key')
+  findOne(@Param('id') id: string) {
+    return this.licenseKeysService.findOne(+id);
+  }
+
+  @Get('count/:productId')
+  @Permissions('count-license-keys')
+  countByProductId(@Param('productId') productId: string) {
+    return this.licenseKeysService.countByProductId(+productId);
+  }
+
+  @Patch(':id')
+  @Permissions('update-license-key')
+  update(@Param('id') id: string, @Body() updateLicenseKeyDto: UpdateLicenseKeyDto) {
+    return this.licenseKeysService.update(+id, updateLicenseKeyDto);
+  }
+
+  @Delete(':id')
+  @Permissions('delete-license-key')
+  remove(@Param('id') id: string) {
+    return this.licenseKeysService.remove(+id);
+  }
+}

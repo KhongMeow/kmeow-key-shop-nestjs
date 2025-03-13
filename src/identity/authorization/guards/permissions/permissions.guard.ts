@@ -29,7 +29,7 @@ export class PermissionsGuard implements CanActivate {
     }
 
     const roleId = user.role.id;
-    const role = await this.rolesService.findOne(roleId);
+    const role = await this.rolesService.getPermissionsInRole(roleId);
 
     if (!role.rolePermissions) {
       throw new ForbiddenException('You do not have any permission');

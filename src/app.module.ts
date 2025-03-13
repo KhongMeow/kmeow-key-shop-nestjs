@@ -13,6 +13,7 @@ import { BalancesModule } from './balances/balances.module';
 import { SlidesShowModule } from './slides-show/slides-show.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
+import { LicenseKeysModule } from './license-keys/license-keys.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { ProductsModule } from './products/products.module';
     BalancesModule,
     SlidesShowModule,
     CategoriesModule,
-    ProductsModule
+    ProductsModule,
+    LicenseKeysModule
   ],
 })
 export class AppModule {}

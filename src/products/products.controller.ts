@@ -29,6 +29,18 @@ export class ProductsController {
     return this.productsService.findAll(page, limit, order, direction);
   }
 
+  @Get('category/:categoryId')
+  @Permissions('list-products')
+  findAllByCategoryId(
+    @Param('categoryId') categoryId: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('order') order?: string,
+    @Query('direction') direction?: string,
+  ) {
+    return this.productsService.findAllByCategoryId(+categoryId, page, limit, order, direction);
+  }
+
   @Get(':id')
   @Permissions('select-product')
   findOne(@Param('id') id: string) {

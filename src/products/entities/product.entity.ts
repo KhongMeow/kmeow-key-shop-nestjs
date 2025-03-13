@@ -1,5 +1,6 @@
 import { Category } from "src/categories/entities/category.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { LicenseKey } from "src/license-keys/entities/license-key.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Product {
@@ -23,6 +24,9 @@ export class Product {
 
   @ManyToOne(() => Category, category => category.products)
   category: Category;
+
+  @OneToMany(() => LicenseKey, licenseKey => licenseKey.product)
+  licenseKeys: LicenseKey[];
   
   @CreateDateColumn()
   createdAt: Date;

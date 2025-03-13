@@ -33,7 +33,6 @@ export class CategoriesService {
       const take = limit ? limit : undefined;
 
       const categories = await this.categoriesRepository.find({
-        relations: ['products'],
         skip,
         take,
         order: {
@@ -53,10 +52,7 @@ export class CategoriesService {
 
   async findOne(id: number): Promise<Category> {
     try {
-      const category = await this.categoriesRepository.findOne({
-        where: { id },
-        relations: ['products'],
-      });
+      const category = await this.categoriesRepository.findOneBy({ id });
 
       if (!category) {
         throw new BadRequestException(`Category with id ${id} is not found`);

@@ -73,6 +73,12 @@ export class SetupService {
       { name: 'Select Product' },
       { name: 'Update Product' },
       { name: 'Delete Product' },
+      { name: 'Create License Key' },
+      { name: 'List License Keys' },
+      { name: 'Count License Keys' },
+      { name: 'Select License Key' },
+      { name: 'Update License Key' },
+      { name: 'Delete License Key' },
     ];
 
     for (const permission of defaultPermissions) {

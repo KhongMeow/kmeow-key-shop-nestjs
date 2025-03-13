@@ -78,6 +78,32 @@ export class ProductsService {
     }
   }
 
+  async findAllByCategoryId(categoryId: number, page?: number, limit?: number, order?: string, direction?: string): Promise<Product[]> {
+    try {
+      const skip = page && limit ? (page - 1) * limit : undefined;
+      const take = limit ? limit : undefined;
+
+      const category = await this.categoriesService.findOne(categoryId);
+      const products = await this.productsRepository.find({
+        where: { category },
+        relations: ['category'],
+        skip,
+        take,
+        order: {
+          [order || 'id']: direction || 'ASC',
+        },
+      });
+
+      if (products.length === 0) {
+        throw new NotFoundException(`Products for category ${category.name} is empty`);
+      }
+
+      return products;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async update(id: number, updateProductDto: UpdateProductDto, image: Express.Multer.File): Promise<Product> {
     try {
       const product = await this.findOne(id);
