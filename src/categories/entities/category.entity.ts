@@ -1,8 +1,8 @@
-import { RolePermission } from "src/role-permissions/entities/role-permission.entity";
+import { Product } from "src/products/entities/product.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
-export class Permission {
+export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -12,8 +12,8 @@ export class Permission {
   @Column()
   slug: string;
 
-  @OneToMany(() => RolePermission, rolePermission => rolePermission.permission)
-  rolePermissions: RolePermission[];
+  @OneToMany(() => Product, product => product.category)
+  products: Product[];
 
   @CreateDateColumn()
   createdAt: Date;

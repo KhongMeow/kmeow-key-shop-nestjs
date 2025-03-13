@@ -11,6 +11,8 @@ import { MailModule } from './mails/mail.module';
 import { SetupModule } from './setup/setup.module';
 import { BalancesModule } from './balances/balances.module';
 import { SlidesShowModule } from './slides-show/slides-show.module';
+import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -38,7 +40,9 @@ import { SlidesShowModule } from './slides-show/slides-show.module';
     RolePermissionsModule,
     IdentityModule,
     BalancesModule,
-    SlidesShowModule
+    SlidesShowModule,
+    CategoriesModule,
+    ProductsModule
   ],
 })
 export class AppModule {}

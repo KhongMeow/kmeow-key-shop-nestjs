@@ -136,7 +136,7 @@ export class UsersService {
   
       return {
         statusCode: 200,
-        message: `Deleted user with id ${id} successfully`
+        message: `User with id ${id} has been deleted`
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

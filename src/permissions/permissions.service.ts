@@ -106,15 +106,19 @@ export class PermissionsService {
   }
 
   private async isExistPermission(name: string): Promise<void> {
-    const permission = await this.permissionsRepository.findOne({
-      where: [
-        { name },
-        { slug: await this.globalService.convertToSlug(name) }
-      ],
-    });
+    try {
+      const permission = await this.permissionsRepository.findOne({
+        where: [
+          { name },
+          { slug: await this.globalService.convertToSlug(name) }
+        ],
+      });
 
-    if (permission) {
-      throw new InternalServerErrorException(`Permission with name ${name} is already exist`);
+      if (permission) {
+        throw new InternalServerErrorException(`Permission with name ${name} is already exist`);
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

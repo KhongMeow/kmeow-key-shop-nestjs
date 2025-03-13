@@ -92,7 +92,7 @@ export class BalancesService {
   
       return {
         statusCode: 200,
-        message: `Balance with id ${id} removed successfully`,
+        message: `Balance with id ${id} has been deleted`,
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

@@ -119,12 +119,16 @@ export class RolePermissionsService {
   }
 
   private async isExistRolePermission(role: Role, permission: Permission) {
-    const isExist = await this.rolePermissionsRepository.findOne({
-      where: { role, permission },
-    });
+    try {
+      const isExist = await this.rolePermissionsRepository.findOne({
+        where: { role, permission },
+      });
 
-    if (isExist) {
-      throw new InternalServerErrorException('Role Permission is already exist');
+      if (isExist) {
+        throw new InternalServerErrorException('Role Permission is already exist');
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

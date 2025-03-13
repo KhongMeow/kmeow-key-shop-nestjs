@@ -89,7 +89,7 @@ export class SlidesShowService {
       await this.slidesShowRepository.softDelete(id);
       return {
         status: 200,
-        message: `Deleted slidsshow with id ${id} successfully`,
+        message: `Slide show with id ${id} has been deleted`,
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

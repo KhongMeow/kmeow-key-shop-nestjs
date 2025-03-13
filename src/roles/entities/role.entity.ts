@@ -18,13 +18,13 @@ export class Role {
 
   @OneToMany(() => RolePermission, rolePermission => rolePermission.role)
   rolePermissions: RolePermission[];
-  
+
   @CreateDateColumn()
-  created_at: Date;
-  
+  createdAt: Date;
+
   @UpdateDateColumn()
-  updated_at: Date;
-  
+  updatedAt: Date;
+
   @DeleteDateColumn()
-  deleted_at: Date;
+  deletedAt: Date;
 }

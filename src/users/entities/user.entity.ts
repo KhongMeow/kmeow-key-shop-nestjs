@@ -24,13 +24,13 @@ export class User {
 
   @OneToOne(() => Balance, balance => balance.user, { cascade: true })
   balance: Balance;
-  
+
   @CreateDateColumn()
-  created_at: Date;
-  
+  createdAt: Date;
+
   @UpdateDateColumn()
-  updated_at: Date;
-  
+  updatedAt: Date;
+
   @DeleteDateColumn()
-  deleted_at: Date;
+  deletedAt: Date;
 }
