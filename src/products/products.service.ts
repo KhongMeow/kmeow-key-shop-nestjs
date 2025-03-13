@@ -108,6 +108,10 @@ export class ProductsService {
     try {
       const product = await this.findOne(id);
 
+      if (!updateProductDto.categoryId && !updateProductDto.name && !updateProductDto.price && !updateProductDto.detail && !updateProductDto.description) {
+        throw new BadRequestException('At least one field must be provided to update the product');
+      }
+
       if (updateProductDto.categoryId) {
         const category = await this.categoriesService.findOne(updateProductDto.categoryId);
         product.category = category;

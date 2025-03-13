@@ -59,7 +59,7 @@ export class LicenseKeysService {
 
       const product = await this.productsService.findOne(productId);
       const licenseKeys = await this.licenseKeyRepository.find({
-        where: { product: product },
+        where: { product },
         relations: ['product'],
         skip,
         take,
@@ -98,9 +98,7 @@ export class LicenseKeysService {
   async countByProductId(productId: number): Promise<number> {
     try {
       const product = await this.productsService.findOne(productId);
-      const count = await this.licenseKeyRepository.count({ 
-        where: { product }
-      });
+      const count = await this.licenseKeyRepository.countBy({ product });
 
       return count;
     } catch (error) {
@@ -110,7 +108,7 @@ export class LicenseKeysService {
 
   async update(id: number, updateLicenseKeyDto: UpdateLicenseKeyDto): Promise<LicenseKey> {
     try {
-      if (updateLicenseKeyDto.key === undefined && updateLicenseKeyDto.productId === undefined) {
+      if (!updateLicenseKeyDto.key && !updateLicenseKeyDto.productId) {
         throw new InternalServerErrorException('Key or product id must be provided');
       }
 

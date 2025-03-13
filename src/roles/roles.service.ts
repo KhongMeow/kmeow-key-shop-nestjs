@@ -52,9 +52,7 @@ export class RolesService {
 
   async findOne(id: number): Promise<Role> {
     try {
-      const role = await this.rolesReposotory.findOne({
-        where: { id },
-      });
+      const role = await this.rolesReposotory.findOneBy({ id });
 
       if (!role) {
         throw new NotFoundException(`Role with id ${id} is not found`);
@@ -68,9 +66,7 @@ export class RolesService {
 
   async findOneBySlug(slug: string): Promise<Role> {
     try {
-      const role = await this.rolesReposotory.findOne({
-        where: { slug },
-      });
+      const role = await this.rolesReposotory.findOneBy({ slug });
 
       if (!role) {
         throw new NotFoundException(`Role with slug ${slug} is not found`);
