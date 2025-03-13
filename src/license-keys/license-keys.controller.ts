@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors } from '@nestjs/common';
 import { LicenseKeysService } from './license-keys.service';
 import { CreateLicenseKeyDto } from './dto/create-license-key.dto';
 import { UpdateLicenseKeyDto } from './dto/update-license-key.dto';
 import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(PermissionsGuard)
 @Controller('license-keys')
@@ -12,6 +13,7 @@ export class LicenseKeysController {
 
   @Post()
   @Permissions('create-license-key')
+  @UseInterceptors(FileInterceptor(''))
   create(@Body() createLicenseKeyDto: CreateLicenseKeyDto) {
     return this.licenseKeysService.create(createLicenseKeyDto);
   }
@@ -53,6 +55,7 @@ export class LicenseKeysController {
 
   @Patch(':id')
   @Permissions('update-license-key')
+  @UseInterceptors(FileInterceptor(''))
   update(@Param('id') id: string, @Body() updateLicenseKeyDto: UpdateLicenseKeyDto) {
     return this.licenseKeysService.update(+id, updateLicenseKeyDto);
   }
