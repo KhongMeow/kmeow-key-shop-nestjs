@@ -76,6 +76,11 @@ export class BalancesService {
   async decreaseAmount(id: number, amount: number) {
     try {
       const balance = await this.findOne(id);
+
+      if (balance.amount < amount) {
+        throw new InternalServerErrorException('Insufficient balance');
+      }
+      
       balance.amount -= amount;
 
       return await this.balancesRepository.save(balance);

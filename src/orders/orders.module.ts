@@ -11,6 +11,8 @@ import jwtConfig from 'src/identity/config/jwt.config';
 import { RolesModule } from 'src/roles/roles.module';
 import { ProductsModule } from 'src/products/products.module';
 import { LicenseKeysModule } from 'src/license-keys/license-keys.module';
+import { BalancesModule } from 'src/balances/balances.module';
+import { MailModule } from 'src/mails/mail.module';
 
 @Module({
   imports: [
@@ -20,7 +22,9 @@ import { LicenseKeysModule } from 'src/license-keys/license-keys.module';
     RolesModule,
     UsersModule,
     ProductsModule,
-    LicenseKeysModule,
+    forwardRef(() => LicenseKeysModule),
+    BalancesModule,
+    MailModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

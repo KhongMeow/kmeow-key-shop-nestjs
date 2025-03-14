@@ -16,8 +16,8 @@ export class Order {
   @Column()
   status: string;
 
-  @OneToMany(() => OrderItem, (item) => item.order)
-  items: OrderItem[];
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  orderItems: OrderItem[];
 
   @CreateDateColumn()
   createdAt: Date;

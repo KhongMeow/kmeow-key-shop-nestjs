@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateLicenseKeyDto } from './dto/create-license-key.dto';
 import { UpdateLicenseKeyDto } from './dto/update-license-key.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +12,8 @@ export class LicenseKeysService {
   constructor(
     @InjectRepository(LicenseKey) private readonly licenseKeysRepository: Repository<LicenseKey>,
     private readonly productsService: ProductsService,
+    @Inject(forwardRef(() => OrdersService))
+    private readonly ordersService: OrdersService,
   ) {}
 
   async create(createLicenseKeyDto: CreateLicenseKeyDto): Promise<LicenseKey> {
@@ -89,6 +91,7 @@ export class LicenseKeysService {
         },
         relations: ['product'],
         take: limit,
+        order: {id: 'ASC'},
       });
 
       if (!licenseKeys.length) {
@@ -101,19 +104,42 @@ export class LicenseKeysService {
     }
   }
 
-  // async makeOrderdLicenseKey(licenseKeyId: number, orderItemId: number): Promise<LicenseKey> {
-  //   try {
-  //     const orderItem = await this.ordersService.findOneOrderItem(orderItemId);
-  //     const licenseKey = await this.findOne(licenseKeyId);
+  async makeOrderdLicenseKey(licenseKeyId: number, orderItemId: number) {
+    try {
+      const orderItem = await this.ordersService.findOneOrderItem(orderItemId);
+      const licenseKey = await this.findOne(licenseKeyId);
       
-  //     licenseKey.orderItem = orderItem;
-  //     licenseKey.status = 'Ordered';
+      licenseKey.orderItem = orderItem;
+      licenseKey.status = 'Ordered';
 
-  //     return await this.licenseKeysRepository.save(licenseKey);
-  //   } catch (error) {
-  //     throw new InternalServerErrorException(error.message);
-  //   }
-  // }
+      return await this.licenseKeysRepository.save(licenseKey);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async changeStatus(licenseKeyId: number, status: string): Promise<void> {
+    try {
+      const licenseKey = await this.findOne(licenseKeyId);
+      licenseKey.status = status;
+
+      await this.licenseKeysRepository.save(licenseKey);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async clearOrderdLicenseKey(licenseKeyId: number) {
+    try {
+      const licenseKey = await this.findOne(licenseKeyId);
+      licenseKey.orderItem = null as any;
+      licenseKey.status = 'Active';
+
+      return await this.licenseKeysRepository.save(licenseKey);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 
   async findOne(id: number): Promise<LicenseKey> {
     try {

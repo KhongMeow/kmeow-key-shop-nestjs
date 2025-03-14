@@ -17,6 +17,7 @@ import { OrdersModule } from 'src/orders/orders.module';
     ConfigModule.forFeature(jwtConfig),
     RolesModule,
     ProductsModule,
+    forwardRef(() => OrdersModule)
   ],
   controllers: [LicenseKeysController],
   providers: [LicenseKeysService],
