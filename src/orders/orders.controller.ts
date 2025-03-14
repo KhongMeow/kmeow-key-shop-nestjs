@@ -11,8 +11,6 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  @UseGuards(PermissionsGuard)
-  @Permissions('create-order')
   create(@Body() createOrderDto: CreateOrderDto, @ActiveUser() user: ActiveUserData) {
     const userId = user.sub;
     return this.ordersService.create(createOrderDto, userId);
@@ -22,7 +20,7 @@ export class OrdersController {
   @UseGuards(PermissionsGuard)
   @Permissions('list-orders')
   findAll(
-    @Query('userId') userId: number,
+    @Query('userId') userId?: number,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('order') order?: string,
