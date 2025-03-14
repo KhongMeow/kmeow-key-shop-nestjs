@@ -86,7 +86,7 @@ export class LicenseKeysService {
       const product = await this.productsService.findOne(productId);
       const licenseKeys = await this.licenseKeysRepository.find({
         where: {
-          product,
+          product: { id: product.id },
           status: 'Active',
         },
         relations: ['product'],

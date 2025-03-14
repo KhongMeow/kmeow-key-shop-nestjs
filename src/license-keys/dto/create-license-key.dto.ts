@@ -5,7 +5,6 @@ export class CreateLicenseKeyDto {
   @IsString()
   key: string;
 
-  @IsString()
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
   productId: number;

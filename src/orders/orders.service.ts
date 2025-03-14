@@ -53,6 +53,9 @@ export class OrdersService {
         const orderItem = new OrderItem();
         orderItem.order = order;
         orderItem.product = product;
+        orderItem.quantity = item.quantity;
+
+        await this.orderItemsRepository.save(orderItem);
 
         const licenseKeys = await this.licenseKeysService.findAvailableLicenseKey(product.id, item.quantity);
         for (const licenseKey of licenseKeys) {
@@ -61,7 +64,7 @@ export class OrdersService {
         
         orderItem.quantity = licenseKeys.length;
 
-        await this.ordersRepository.manager.save(orderItem);
+        await this.orderItemsRepository.save(orderItem);
         totalOrderedPrice += product.price * orderItem.quantity;
       }
 
@@ -128,7 +131,7 @@ export class OrdersService {
 
       const orders = await this.ordersRepository.find({
         where: user ? { user: { id: user?.id } } : {},
-        relations: ['user'],
+        relations: ['user', 'orderItems.product', 'orderItems.licenseKeys'],
         skip,
         take,
         order: {
