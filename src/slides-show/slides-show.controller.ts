@@ -6,6 +6,8 @@ import { UpdateSlidesShowDto } from './dto/update-slides-show.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
+import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
+import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 
 @UseGuards(PermissionsGuard)
 @Controller('slides-show')
@@ -20,7 +22,7 @@ export class SlidesShowController {
   }
 
   @Get()
-  @Permissions('list-slides-show')
+  @Auth(AuthType.None)
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -31,7 +33,7 @@ export class SlidesShowController {
   }
 
   @Get(':id')
-  @Permissions('select-slide-show')
+  @Auth(AuthType.None)
   findOne(@Param('id') id: string) {
     return this.slidesShowService.findOne(+id);
   }

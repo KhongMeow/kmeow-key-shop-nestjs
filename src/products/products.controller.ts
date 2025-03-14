@@ -5,6 +5,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
+import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 
 @UseGuards(PermissionsGuard)
 @Controller('products')
@@ -19,7 +21,7 @@ export class ProductsController {
   }
 
   @Get()
-  @Permissions('list-products')
+  @Auth(AuthType.None)
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -30,7 +32,7 @@ export class ProductsController {
   }
 
   @Get('category/:categoryId')
-  @Permissions('list-products')
+  @Auth(AuthType.None)
   findAllByCategoryId(
     @Param('categoryId') categoryId: string,
     @Query('page') page?: number,
@@ -42,7 +44,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @Permissions('select-product')
+  @Auth(AuthType.None)
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);
   }

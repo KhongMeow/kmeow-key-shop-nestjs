@@ -64,13 +64,9 @@ export class SetupService {
       { name: 'Update Slide Show' },
       { name: 'Delete Slide Show' },
       { name: 'Create Category' },
-      { name: 'List Categories' },
-      { name: 'Select Category' },
       { name: 'Update Category' },
       { name: 'Delete Category' },
       { name: 'Create Product' },
-      { name: 'List Products' },
-      { name: 'Select Product' },
       { name: 'Update Product' },
       { name: 'Delete Product' },
       { name: 'Create License Key' },
@@ -79,6 +75,8 @@ export class SetupService {
       { name: 'Select License Key' },
       { name: 'Update License Key' },
       { name: 'Delete License Key' },
+      { name: 'List Orders' },
+      { name: 'Select Order' },
     ];
 
     for (const permission of defaultPermissions) {

@@ -1,6 +1,7 @@
 import { Balance } from "src/balances/entities/balance.entity";
+import { Order } from "src/orders/entities/order.entity";
 import { Role } from "src/roles/entities/role.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -24,6 +25,9 @@ export class User {
 
   @OneToOne(() => Balance, balance => balance.user, { cascade: true })
   balance: Balance;
+
+  @OneToMany(() => Order, order => order.user)
+  orders: Order[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -5,11 +5,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LicenseKey } from './entities/license-key.entity';
 import { Repository } from 'typeorm';
 import { ProductsService } from 'src/products/products.service';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Injectable()
 export class LicenseKeysService {
   constructor(
-    @InjectRepository(LicenseKey) private readonly licenseKeyRepository: Repository<LicenseKey>,
+    @InjectRepository(LicenseKey) private readonly licenseKeysRepository: Repository<LicenseKey>,
     private readonly productsService: ProductsService,
   ) {}
 
@@ -22,7 +23,7 @@ export class LicenseKeysService {
       licenseKey.key = createLicenseKeyDto.key;
       licenseKey.product = product;
 
-      return await this.licenseKeyRepository.save(licenseKey);
+      return await this.licenseKeysRepository.save(licenseKey);
     } catch (error) {
       throw new InternalServerErrorException(error.massage);
     }
@@ -33,7 +34,7 @@ export class LicenseKeysService {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
 
-      const licenseKeys = await this.licenseKeyRepository.find({
+      const licenseKeys = await this.licenseKeysRepository.find({
         relations: ['product'],
         skip,
         take,
@@ -52,13 +53,13 @@ export class LicenseKeysService {
     }
   }
 
-  async findAllByProductId(productId: number, page?: number, limit?: number, order?: string, direction?: string): Promise<LicenseKey[]> {
+  async findAllByProductId(productId: number, page?: number, limit?: number, order?: string, direction?: string, status?: string): Promise<LicenseKey[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
 
       const product = await this.productsService.findOne(productId);
-      const licenseKeys = await this.licenseKeyRepository.find({
+      const licenseKeys = await this.licenseKeysRepository.find({
         where: { product },
         relations: ['product'],
         skip,
@@ -78,9 +79,45 @@ export class LicenseKeysService {
     }
   }
 
+  async findAvailableLicenseKey(productId: number, limit: number): Promise<LicenseKey[]> {
+    try {
+      const product = await this.productsService.findOne(productId);
+      const licenseKeys = await this.licenseKeysRepository.find({
+        where: {
+          product,
+          status: 'Active',
+        },
+        relations: ['product'],
+        take: limit,
+      });
+
+      if (!licenseKeys.length) {
+        throw new InternalServerErrorException(`License key for product ${product.name} is empty`);
+      }
+
+      return licenseKeys;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  // async makeOrderdLicenseKey(licenseKeyId: number, orderItemId: number): Promise<LicenseKey> {
+  //   try {
+  //     const orderItem = await this.ordersService.findOneOrderItem(orderItemId);
+  //     const licenseKey = await this.findOne(licenseKeyId);
+      
+  //     licenseKey.orderItem = orderItem;
+  //     licenseKey.status = 'Ordered';
+
+  //     return await this.licenseKeysRepository.save(licenseKey);
+  //   } catch (error) {
+  //     throw new InternalServerErrorException(error.message);
+  //   }
+  // }
+
   async findOne(id: number): Promise<LicenseKey> {
     try {
-      const licenseKey = await this.licenseKeyRepository.findOne({
+      const licenseKey = await this.licenseKeysRepository.findOne({
         where: { id },
         relations: ['product'],
       });
@@ -98,7 +135,10 @@ export class LicenseKeysService {
   async countByProductId(productId: number): Promise<number> {
     try {
       const product = await this.productsService.findOne(productId);
-      const count = await this.licenseKeyRepository.countBy({ product });
+      const count = await this.licenseKeysRepository.countBy({ 
+        product: { id: product.id },
+        status: 'Active',
+       });
 
       return count;
     } catch (error) {
@@ -124,7 +164,7 @@ export class LicenseKeysService {
         licenseKey.product = product;
       }
 
-      return await this.licenseKeyRepository.save(licenseKey);
+      return await this.licenseKeysRepository.save(licenseKey);
     } catch (error) {
       throw new InternalServerErrorException(error.massage);
     }
@@ -133,7 +173,7 @@ export class LicenseKeysService {
   async remove(id: number): Promise<{ status: number; message: string }> {
     try {
       const licenseKey = await this.findOne(id);
-      await this.licenseKeyRepository.remove(licenseKey);
+      await this.licenseKeysRepository.remove(licenseKey);
 
       return { 
         status: 200,
@@ -145,7 +185,7 @@ export class LicenseKeysService {
   }
 
   async isExistLicenseKey(key: string): Promise<void> {
-    const licenseKey = await this.licenseKeyRepository.findOneBy({ key });
+    const licenseKey = await this.licenseKeysRepository.findOneBy({ key });
 
     if (licenseKey) {
       throw new InternalServerErrorException(`License key ${key} is already exist`);

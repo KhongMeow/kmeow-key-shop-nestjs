@@ -1,3 +1,4 @@
+import { Min } from "class-validator";
 import { User } from "src/users/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
@@ -7,6 +8,7 @@ export class Balance {
   id: number;
   
   @Column("decimal", { precision: 10, scale: 2, default: 0 })
+  @Min(0)
   amount: number;
 
   @OneToOne(() => User, user => user.balance)

@@ -28,6 +28,11 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('Invalid token');
     }
 
+    const userId = request.params.userId ?? request.query.userId;
+    if (userId && +userId === user.sub) {
+      return true;
+    }
+
     const roleId = user.role.id;
     const role = await this.rolesService.getPermissionsInRole(roleId);
 

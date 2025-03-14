@@ -14,6 +14,7 @@ import { SlidesShowModule } from './slides-show/slides-show.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { LicenseKeysModule } from './license-keys/license-keys.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -44,7 +45,8 @@ import { LicenseKeysModule } from './license-keys/license-keys.module';
     SlidesShowModule,
     CategoriesModule,
     ProductsModule,
-    LicenseKeysModule
+    LicenseKeysModule,
+    OrdersModule,
   ],
 })
 export class AppModule {}
