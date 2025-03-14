@@ -18,20 +18,21 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto, image: Express.Multer.File): Promise<Product> {
     try {
       const category = await this.categoriesService.findOne(createProductDto.categoryId);
-
-      const product = new Product();
-      product.name = createProductDto.name;
-      product.price = createProductDto.price;
-      product.detail = createProductDto.detail;
-      product.description = createProductDto.description;
-      product.category = category;
-
       if (image) {
+        const product = new Product();
+        product.name = createProductDto.name;
+        product.price = createProductDto.price;
+        product.detail = createProductDto.detail;
+        product.description = createProductDto.description;
+        product.category = category;
+
         const filePath = await this.uploadImage(image);
         product.image = filePath;
-      }
 
-      return await this.productsRepository.save(product);
+        return await this.productsRepository.save(product);
+      } else {
+        throw new BadRequestException('Image is required');
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

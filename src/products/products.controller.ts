@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Query, BadRequestException, UploadedFile } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -16,7 +16,10 @@ export class ProductsController {
   @Post()
   @Permissions('create-product')
   @UseInterceptors(FileInterceptor('image'))
-  create(@Body() createProductDto: CreateProductDto, image: Express.Multer.File) {
+  create(@Body() createProductDto: CreateProductDto, @UploadedFile() image: Express.Multer.File) {
+    if (!image) {
+      throw new BadRequestException('Image is required');
+    }
     return this.productsService.create(createProductDto, image);
   }
 
