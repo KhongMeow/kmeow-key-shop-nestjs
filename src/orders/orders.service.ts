@@ -103,6 +103,14 @@ export class OrdersService {
       const order = await this.findOne(orderId);
       const user = await this.usersService.findOne(userId);
       
+      if (order.user.id !== user.id) {
+        throw new InternalServerErrorException(`This user does not have order with id ${orderId}`);
+      }
+
+      if (order.status !== 'Waiting Payment') {
+        throw new InternalServerErrorException(`Order with id ${orderId} is not waiting payment`);
+      }
+
       let totalOrderedPrice = 0;
       for (const item of order.orderItems) {
         for (const licenseKey of item.licenseKeys) {
@@ -133,7 +141,15 @@ export class OrdersService {
     }
   }
 
-  async findAll(userId?: number, page?: number, limit?: number, order?: string, direction?: string, status?: string, period?: 'thisWeek' | 'thisMonth' | 'thisYear' | 'oneWeekBefore' | 'oneMonthBefore' | '3monthsBefore' | '6monthsBefore' | '1yearBefore'): Promise<Order[]> {
+  async findAll(
+    userId?: number,
+    page?: number,
+    limit?: number,
+    order?: string,
+    direction?: string,
+    status?: 'Order Created' | 'Waiting Payment' | 'Paid' | 'Delivered' | 'Failed to Deliver' | 'Order Completed' | 'Cancelled',
+    period?: 'thisWeek' | 'thisMonth' | 'thisYear' | 'oneWeekBefore' | 'oneMonthBefore' | '3monthsBefore' | '6monthsBefore' | '1yearBefore'
+  ): Promise<Order[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;

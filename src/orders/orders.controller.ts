@@ -18,6 +18,12 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto, userId);
   }
 
+  @Post('confirm-payment')
+  confirmPayment(@Body() orderId: number, @ActiveUser() user: ActiveUserData) {
+    const userId = user.sub;
+    return this.ordersService.confirmPayment(orderId, userId);
+  }
+
   @Get()
   @UseGuards(PermissionsGuard)
   @Permissions('list-orders')
