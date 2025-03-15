@@ -22,6 +22,15 @@ export class Order {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Column()
+  paidAt: Date;
+
+  @Column()
+  deliveredAt: Date;
+
+  @Column()
+  cancelledAt: Date;
+
   @UpdateDateColumn()
   updatedAt: Date;
 

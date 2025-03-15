@@ -27,8 +27,10 @@ export class OrdersController {
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
+    @Query('status') status?: 'Order Created' | 'Waiting Payment' | 'Paid' | 'Delivered' | 'Failed to Deliver' | 'Order Completed' | 'Cancelled',
+    @Query('period') period?: 'thisWeek' | 'thisMonth' | 'thisYear' | 'oneWeekBefore' | 'oneMonthBefore' | '3monthsBefore' | '6monthsBefore' | '1yearBefore',
   ) {
-    return this.ordersService.findAll(userId, page, limit, order, direction);
+    return this.ordersService.findAll(userId, page, limit, order, direction, status, period);
   }
 
   @Get(':id')

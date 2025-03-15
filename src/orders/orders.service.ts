@@ -12,6 +12,8 @@ import { BalancesService } from 'src/balances/balances.service';
 import { MailService } from 'src/mails/mail.service';
 import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
+import { Between } from 'typeorm';
+import * as moment from 'moment';
 
 @Injectable()
 export class OrdersService {
@@ -82,7 +84,9 @@ export class OrdersService {
       const order = await this.findOne(orderId);
       if (order.status === 'Waiting Payment') {
         await this.changeStatus(orderId, 'Cancelled');
-        
+        order.cancelledAt = new Date();
+        await this.ordersRepository.save(order);
+
         for (const item of order.orderItems) {
           for (const licenseKey of item.licenseKeys) {
             await this.licenseKeysService.clearOrderdLicenseKey(licenseKey.id);
@@ -107,30 +111,85 @@ export class OrdersService {
         }
       }
 
+      // Decrease user balance
       await this.balancesService.decreaseAmount(user.balance.id, totalOrderedPrice);
+      order.paidAt = new Date();
+      await this.ordersRepository.save(order);
       await this.changeStatus(orderId, 'Paid');
       await this.redisClient.del(`waitingPayment:${orderId}`);
 
-      return await this.mailService.sendMail(
+      // Start Delivering
+      await this.mailService.sendMail(
         order.email,
         `Your License Key(s) from K'meow Key Shop`,
         `Your order with id ${orderId} has been confirmed. Here is your license key(s): 
         ${order.orderItems.map(item => item.licenseKeys.map(licenseKey => licenseKey.key).join(', ')).join(', ')}`
       );
+      order.deliveredAt = new Date();
+      await this.changeStatus(orderId, 'Delivered');
+      await this.ordersRepository.save(order);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async findAll(userId?: number, page?: number, limit?: number, order?: string, direction?: string): Promise<Order[]> {
+  async findAll(userId?: number, page?: number, limit?: number, order?: string, direction?: string, status?: string, period?: 'thisWeek' | 'thisMonth' | 'thisYear' | 'oneWeekBefore' | 'oneMonthBefore' | '3monthsBefore' | '6monthsBefore' | '1yearBefore'): Promise<Order[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
-
+  
       const user = userId ? await this.usersService.findOne(userId) : undefined;
-
+  
+      let where: any = user ? { user: { id: user?.id } } : {};
+  
+      if (period) {
+        let startDate: Date;
+        let endDate: Date = new Date();
+  
+        switch (period) {
+          case 'thisWeek':
+            startDate = moment().startOf('week').toDate();
+            endDate = moment().endOf('week').toDate();
+            break;
+          case 'thisMonth':
+            startDate = moment().startOf('month').toDate();
+            endDate = moment().endOf('month').toDate();
+            break;
+          case 'thisYear':
+            startDate = moment().startOf('year').toDate();
+            endDate = moment().endOf('year').toDate();
+            break;
+          case 'oneWeekBefore':
+            startDate = moment().subtract(1, 'weeks').startOf('week').toDate();
+            endDate = moment().subtract(1, 'weeks').endOf('week').toDate();
+            break;
+          case 'oneMonthBefore':
+            startDate = moment().subtract(1, 'months').startOf('month').toDate();
+            endDate = moment().subtract(1, 'months').endOf('month').toDate();
+            break;
+          case '3monthsBefore':
+            startDate = moment().subtract(3, 'months').startOf('month').toDate();
+            endDate = moment().subtract(3, 'months').endOf('month').toDate();
+            break;
+          case '6monthsBefore':
+            startDate = moment().subtract(6, 'months').startOf('month').toDate();
+            endDate = moment().subtract(6, 'months').endOf('month').toDate();
+            break;
+          case '1yearBefore':
+            startDate = moment().subtract(1, 'years').startOf('year').toDate();
+            endDate = moment().subtract(1, 'years').endOf('year').toDate();
+            break;
+        }
+  
+        where = {
+          ...where,
+          createdAt: Between(startDate, endDate),
+          status: status || undefined,
+        };
+      }
+  
       const orders = await this.ordersRepository.find({
-        where: user ? { user: { id: user?.id } } : {},
+        where,
         relations: ['user', 'orderItems.product', 'orderItems.licenseKeys'],
         skip,
         take,
@@ -138,11 +197,11 @@ export class OrdersService {
           [order || 'id']: direction || 'ASC',
         },
       });
-
+  
       if (!orders.length) {
         throw new InternalServerErrorException('Orders is empty');
       }
-
+  
       return orders;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
