@@ -15,6 +15,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 import { LicenseKeysModule } from './license-keys/license-keys.module';
 import { OrdersModule } from './orders/orders.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'node:path';
 
 @Module({
   imports: [
@@ -32,6 +34,10 @@ import { OrdersModule } from './orders/orders.module';
         autoLoadEntities: true,
         synchronize: true,
       }),
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'images'),
+      serveRoot: '/images',
     }),
     GlobalModule,
     MailModule,

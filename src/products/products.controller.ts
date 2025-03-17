@@ -55,7 +55,7 @@ export class ProductsController {
   @Patch(':id')
   @Permissions('update-product')
   @UseInterceptors(FileInterceptor('image'))
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, image: Express.Multer.File) {
+  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @UploadedFile() image: Express.Multer.File) {
     return this.productsService.update(+id, updateProductDto, image);
   }
 

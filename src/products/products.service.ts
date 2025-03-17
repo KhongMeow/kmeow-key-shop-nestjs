@@ -86,7 +86,7 @@ export class ProductsService {
 
       const category = await this.categoriesService.findOne(categoryId);
       const products = await this.productsRepository.find({
-        where: { category },
+        where: categoryId ? { category: { id: category.id} } : {},
         relations: ['category'],
         skip,
         take,
@@ -167,7 +167,7 @@ export class ProductsService {
       await fs.mkdir(uploadDir, { recursive: true });
       await fs.writeFile(filePath, image.buffer);
   
-      return filePath;
+      return `/images/products/${timestamp}-${image.originalname}`;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
