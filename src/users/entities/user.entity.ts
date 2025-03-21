@@ -1,5 +1,6 @@
 import { Balance } from "src/balances/entities/balance.entity";
 import { Order } from "src/orders/entities/order.entity";
+import { RatingProduct } from "src/rating-products/entities/rating-product.entity";
 import { Role } from "src/roles/entities/role.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
@@ -28,6 +29,9 @@ export class User {
 
   @OneToMany(() => Order, order => order.user)
   orders: Order[];
+
+  @OneToMany(() => RatingProduct, ratingProduct => ratingProduct.user)
+  ratings: RatingProduct[];
 
   @CreateDateColumn()
   createdAt: Date;

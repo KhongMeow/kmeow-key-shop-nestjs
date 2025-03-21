@@ -4,6 +4,6 @@ import { BadGatewayException, ConflictException, Injectable } from '@nestjs/comm
 export class GlobalService {
 
   async convertToSlug(name: string): Promise<string> {
-    return name.toLowerCase().replace(/\s+/g, '-');
+    return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   }
 }

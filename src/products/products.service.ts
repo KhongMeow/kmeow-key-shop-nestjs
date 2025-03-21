@@ -66,7 +66,7 @@ export class ProductsService {
     try {
       const product = await this.productsRepository.findOne({
         where: { id },
-        relations: ['category'],
+        relations: ['category', 'ratings'],
       });
 
       if (!product) {
@@ -168,6 +168,17 @@ export class ProductsService {
       await fs.writeFile(filePath, image.buffer);
   
       return `/images/products/${timestamp}-${image.originalname}`;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async scaleRating(productId: number, scaleRating: number): Promise<void> {
+    try {
+      const product = await this.findOne(productId);
+      product.scaleRating = scaleRating;
+
+      await this.productsRepository.save(product);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

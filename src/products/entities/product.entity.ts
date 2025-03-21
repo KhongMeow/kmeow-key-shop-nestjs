@@ -1,6 +1,7 @@
 import { Category } from "src/categories/entities/category.entity";
 import { LicenseKey } from "src/license-keys/entities/license-key.entity";
 import { OrderItem } from "src/orders/entities/order-item.entity";
+import { RatingProduct } from "src/rating-products/entities/rating-product.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
@@ -23,8 +24,14 @@ export class Product {
   @Column()
   image: string;
 
+  @Column("decimal", { precision: 10, scale: 2, default: 0 })
+  scaleRating: number;
+
   @ManyToOne(() => Category, category => category.products)
   category: Category;
+
+  @OneToMany(() => RatingProduct, ratingProduct => ratingProduct.product)
+  ratings: RatingProduct[];
 
   @OneToMany(() => LicenseKey, licenseKey => licenseKey.product)
   licenseKeys: LicenseKey[];

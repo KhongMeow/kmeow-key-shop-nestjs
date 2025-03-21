@@ -17,6 +17,7 @@ import { LicenseKeysModule } from './license-keys/license-keys.module';
 import { OrdersModule } from './orders/orders.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
+import { RatingProductsModule } from './rating-products/rating-products.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { join } from 'node:path';
     ProductsModule,
     LicenseKeysModule,
     OrdersModule,
+    RatingProductsModule,
   ],
 })
 export class AppModule {}
