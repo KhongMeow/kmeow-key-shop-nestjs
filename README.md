@@ -44,54 +44,6 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
-## Swagger Documentation
-
-NestJS provides a module to easily integrate Swagger for API documentation. To set up Swagger in your project, follow these steps:
-
-1. Install the necessary dependencies:
-
-    ```bash
-    $ npm install --save @nestjs/swagger swagger-ui-express
-    ```
-
-2. Create a Swagger configuration file (e.g., `swagger.config.ts`):
-
-    ```typescript
-    // filepath: /path/to/swagger.config.ts
-    import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-    import { INestApplication } from '@nestjs/common';
-
-    export function setupSwagger(app: INestApplication): void {
-      const options = new DocumentBuilder()
-        .setTitle('API Documentation')
-        .setDescription('The API description')
-        .setVersion('1.0')
-        .build();
-
-      const document = SwaggerModule.createDocument(app, options);
-      SwaggerModule.setup('api', app, document);
-    }
-    ```
-
-3. Integrate Swagger setup in your main application file (e.g., `main.ts`):
-
-    ```typescript
-    // filepath: /path/to/main.ts
-    import { NestFactory } from '@nestjs/core';
-    import { AppModule } from './app.module';
-    import { setupSwagger } from './swagger.config';
-
-    async function bootstrap() {
-      const app = await NestFactory.create(AppModule);
-      setupSwagger(app);
-      await app.listen(3000);
-    }
-    bootstrap();
-    ```
-
-4. Access the Swagger UI by navigating to `http://localhost:3000/api` in your browser.
-
-With these steps, you will have Swagger documentation set up for your NestJS application, making it easier to explore and test your API endpoints.
 
 ## Run tests
 
