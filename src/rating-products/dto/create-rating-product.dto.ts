@@ -8,10 +8,6 @@ export class CreateRatingProductDto {
     description: 'The user ID',
     required: true,
   })
-  @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsNumber()
-  userId: number;
 
   @ApiProperty({
     example: 1,

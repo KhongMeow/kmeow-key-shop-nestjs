@@ -16,10 +16,10 @@ export class RatingProductsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(productId: number, createRatingProductDto: CreateRatingProductDto): Promise<RatingProduct> {
+  async create(productId: number, createRatingProductDto: CreateRatingProductDto, userId: number): Promise<RatingProduct> {
     try {
       const product = await this.productsService.findOne(productId);
-      const user = await this.usersService.findOne(createRatingProductDto.userId);
+      const user = await this.usersService.findOne(userId);
     
       const ratingProduct = new RatingProduct();
       ratingProduct.rating = createRatingProductDto.rating;

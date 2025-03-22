@@ -5,6 +5,8 @@ import { Permissions } from 'src/identity/authorization/decorators/permissions.d
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ActiveUser } from 'src/identity/decorators/active-user.decorator';
+import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interface';
 
 @ApiBearerAuth('access-token')
 @Controller('users')
@@ -56,5 +58,11 @@ export class UsersController {
   @Permissions('delete-user')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Get('my-profile')
+  myProfile(@ActiveUser() user: ActiveUserData) {
+    const userId = user.sub;
+    return this.usersService.findOne(userId);
   }
 }

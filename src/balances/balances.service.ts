@@ -62,6 +62,23 @@ export class BalancesService {
     }
   }
 
+  async myBalance(userId: number): Promise<Balance> {
+    try {
+      const balance = await this.balancesRepository.findOne({
+        where: { user: {id: userId} },
+        relations: ['user'],
+      });
+
+      if (!balance) {
+        throw new NotFoundException('Can not find balance your balance');
+      }
+
+      return balance; 
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async increaseAmount(id: number, amount: number) {
     try {
       const balance = await this.findOne(id);

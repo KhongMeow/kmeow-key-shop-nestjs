@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } f
 import { BalancesService } from './balances.service';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ActiveUser } from 'src/identity/decorators/active-user.decorator';
+import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interface';
 
 @ApiBearerAuth('access-token')
 @Controller('balances')
@@ -27,9 +29,14 @@ export class BalancesController {
   @Permissions('select-balance')
   findOne(
     @Param('id') id: string,
-    @Query('userId') userId?: number) 
-  {
+  ) {
     return this.balancesService.findOne(+id);
+  }
+
+  @Get('my-balance')
+  myBalance(@ActiveUser() user: ActiveUserData) {
+    const userId = user.sub;
+    return this.balancesService.myBalance(userId);
   }
 
   @Delete(':id')
