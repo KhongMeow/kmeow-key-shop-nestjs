@@ -35,6 +35,12 @@ export class UsersController {
     return this.usersService.findAll(page, limit, order, direction);
   }
 
+  @Get('my-profile')
+  myProfile(@ActiveUser() user: ActiveUserData) {
+    const userId = user.sub;
+    return this.usersService.findOne(userId);
+  }
+
   @Get(':id')
   @Permissions('select-user')
   findOne(@Param('id') id: string) {
@@ -58,11 +64,5 @@ export class UsersController {
   @Permissions('delete-user')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
-  }
-
-  @Get('my-profile')
-  myProfile(@ActiveUser() user: ActiveUserData) {
-    const userId = user.sub;
-    return this.usersService.findOne(userId);
   }
 }

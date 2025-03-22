@@ -45,15 +45,6 @@ export class OrdersController {
     return this.ordersService.findAll(userId, page, limit, order, direction, status, period);
   }
 
-  @Get(':id')
-  @Permissions('select-order')
-  findOne(
-    @Param('id') id: string,
-    @Query('userId') userId?: number
-  ) {
-    return this.ordersService.findOne(+id, userId);
-  }
-
   @Get('my-orders')
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
@@ -72,6 +63,15 @@ export class OrdersController {
   ) {
     const userId = user.sub;
     return this.ordersService.findAll(userId, page, limit, order, direction, status, period);
+  }
+
+  @Get(':id')
+  @Permissions('select-order')
+  findOne(
+    @Param('id') id: string,
+    @Query('userId') userId?: number
+  ) {
+    return this.ordersService.findOne(+id, userId);
   }
 
   @Get('my-order/:id')
