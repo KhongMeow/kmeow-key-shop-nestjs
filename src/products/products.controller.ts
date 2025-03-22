@@ -7,8 +7,8 @@ import { Permissions } from 'src/identity/authorization/decorators/permissions.d
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
+import { ApiQuery } from '@nestjs/swagger';
 
-@UseGuards(PermissionsGuard)
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -25,25 +25,19 @@ export class ProductsController {
 
   @Get()
   @Auth(AuthType.None)
+  @ApiQuery({ name: 'categoryId', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'direction', required: false })
   findAll(
+    @Query('categoryId') categoryId?: number,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
   ) {
-    return this.productsService.findAll(page, limit, order, direction);
-  }
-
-  @Get('category/:categoryId')
-  @Auth(AuthType.None)
-  findAllByCategoryId(
-    @Param('categoryId') categoryId: string,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('order') order?: string,
-    @Query('direction') direction?: string,
-  ) {
-    return this.productsService.findAllByCategoryId(+categoryId, page, limit, order, direction);
+    return this.productsService.findAll(categoryId, page, limit, order, direction);
   }
 
   @Get(':id')

@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
-@UseGuards(PermissionsGuard)
+@ApiBearerAuth('access-token')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -20,12 +20,16 @@ export class UsersController {
 
   @Get()
   @Permissions('list-users')
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'direction', required: false })
   findAll(
-      @Query('page') page?: number,
-      @Query('limit') limit?: number,
-      @Query('order') order?: string,
-      @Query('direction') direction?: string,
-    ) {
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('order') order?: string,
+    @Query('direction') direction?: string,
+  ) {
     return this.usersService.findAll(page, limit, order, direction);
   }
 

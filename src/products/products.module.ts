@@ -12,9 +12,6 @@ import { CategoriesModule } from 'src/categories/categories.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Product]),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
-    ConfigModule.forFeature(jwtConfig),
-    RolesModule,
     CategoriesModule,
   ],
   controllers: [ProductsController],

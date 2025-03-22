@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ActiveUser } from 'src/identity/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('orders')
 export class OrdersController {
@@ -25,8 +25,14 @@ export class OrdersController {
   }
 
   @Get()
-  @UseGuards(PermissionsGuard)
   @Permissions('list-orders')
+  @ApiQuery({ name: 'userId', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'direction', required: false })
+  @ApiQuery({ name: 'status', required: false, enum: ['Order Created', 'Waiting Payment', 'Paid', 'Delivered', 'Failed to Deliver', 'Order Completed', 'Cancelled'] })
+  @ApiQuery({ name: 'period', required: false, enum: ['thisWeek', 'thisMonth', 'thisYear', 'oneWeekBefore', 'oneMonthBefore', '3monthsBefore', '6monthsBefore', '1yearBefore'] })
   findAll(
     @Query('userId') userId?: number,
     @Query('page') page?: number,
@@ -40,7 +46,6 @@ export class OrdersController {
   }
 
   @Get(':id')
-  @UseGuards(PermissionsGuard)
   @Permissions('select-order')
   findOne(
     @Param('id') id: string,

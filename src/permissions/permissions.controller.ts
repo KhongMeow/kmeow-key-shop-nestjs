@@ -3,10 +3,10 @@ import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
-@UseGuards(PermissionsGuard)
+@ApiBearerAuth('access-token')
 @Controller('permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
@@ -20,6 +20,10 @@ export class PermissionsController {
 
   @Get()
   @Permissions('list-permissions')
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'direction', required: false })
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,

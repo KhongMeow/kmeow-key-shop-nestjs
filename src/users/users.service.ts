@@ -13,6 +13,7 @@ import { ConfigType } from '@nestjs/config';
 import { MailService } from 'src/mails/mail.service';
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { BalancesService } from 'src/balances/balances.service';
+import { error } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -89,7 +90,7 @@ export class UsersService {
       const user = await this.findOne(id);
       const newRole = await this.rolesService.findOne(changeRoleDto.newRoleId);
       
-      if (user?.role.id === changeRoleDto.currentRoleId) {
+      if (user) {
         user.role = newRole;
         await this.usersRepository.save(user);
 
@@ -97,8 +98,6 @@ export class UsersService {
           statusCode: 200,
           message: `Role changed to ${newRole.name} successfully`
         };
-      } else {
-        throw new BadRequestException('User role does not match current role');
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

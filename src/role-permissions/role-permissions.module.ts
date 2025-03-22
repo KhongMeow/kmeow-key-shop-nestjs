@@ -6,15 +6,10 @@ import { RolePermission } from './entities/role-permission.entity';
 import { GlobalModule } from 'src/global/global.module';
 import { RolesModule } from 'src/roles/roles.module';
 import { PermissionsModule } from 'src/permissions/permissions.module';
-import { JwtModule } from '@nestjs/jwt';
-import jwtConfig from 'src/identity/config/jwt.config';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([RolePermission]),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
-    ConfigModule.forFeature(jwtConfig),
     GlobalModule,
     RolesModule,
     PermissionsModule

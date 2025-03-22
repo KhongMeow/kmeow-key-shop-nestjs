@@ -8,8 +8,9 @@ import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
-@UseGuards(PermissionsGuard)
+@ApiBearerAuth('access-token')
 @Controller('slides-show')
 export class SlidesShowController {
   constructor(private readonly slidesShowService: SlidesShowService) {}
@@ -23,6 +24,10 @@ export class SlidesShowController {
 
   @Get()
   @Auth(AuthType.None)
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'direction', required: false })
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,

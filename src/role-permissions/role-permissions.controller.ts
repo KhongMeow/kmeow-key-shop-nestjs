@@ -3,10 +3,10 @@ import { RolePermissionsService } from './role-permissions.service';
 import { CreateRolePermissionDto } from './dto/create-role-permission.dto';
 import { UpdateRolePermissionDto } from './dto/update-role-permission.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
-@UseGuards(PermissionsGuard)
+@ApiBearerAuth('access-token')
 @Controller('role-permissions')
 export class RolePermissionsController {
   constructor(private readonly rolePermissionsService: RolePermissionsService) {}
@@ -20,13 +20,17 @@ export class RolePermissionsController {
 
   @Get()
   @Permissions('list-role-permissions')
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'direction', required: false })
   findAll(
-      @Query('page') page?: number,
-      @Query('limit') limit?: number,
-      @Query('order') order?: string,
-      @Query('direction') direction?: string,
-    ) {
-    return this.rolePermissionsService.findAll(page, limit, order, direction);
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('order') order?: string,
+    @Query('direction') direction?: string,
+  ) {
+  return this.rolePermissionsService.findAll(page, limit, order, direction);
   }
 
   @Get(':id')

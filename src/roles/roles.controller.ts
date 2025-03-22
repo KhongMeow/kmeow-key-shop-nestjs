@@ -3,10 +3,10 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
-@UseGuards(PermissionsGuard)
+@ApiBearerAuth('access-token')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
@@ -20,6 +20,10 @@ export class RolesController {
 
   @Get()
   @Permissions('list-roles')
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'direction', required: false })
   async findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,

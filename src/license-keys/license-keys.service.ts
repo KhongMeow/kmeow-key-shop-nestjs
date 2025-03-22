@@ -31,13 +31,16 @@ export class LicenseKeysService {
     }
   }
 
-  async findAll(page?: number, limit?: number, order?: string, direction?: string): Promise<LicenseKey[]> {
+  async findAll(productId?: number, page?: number, limit?: number, order?: string, direction?: string): Promise<LicenseKey[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
 
+      const product = productId ? await this.productsService.findOne(productId) : undefined;
+
       const licenseKeys = await this.licenseKeysRepository.find({
         relations: ['product'],
+        where: product ? { product: { id: product.id } } : {},
         skip,
         take,
         order: {
@@ -46,33 +49,10 @@ export class LicenseKeysService {
       });
 
       if (licenseKeys.length === 0) {
+        if (product) {
+          throw new InternalServerErrorException(`License keys for product ${product.name} is empty`);
+        }
         throw new InternalServerErrorException('License keys is empty');
-      }
-
-      return licenseKeys;
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async findAllByProductId(productId: number, page?: number, limit?: number, order?: string, direction?: string, status?: string): Promise<LicenseKey[]> {
-    try {
-      const skip = page && limit ? (page - 1) * limit : undefined;
-      const take = limit ? limit : undefined;
-
-      const product = await this.productsService.findOne(productId);
-      const licenseKeys = await this.licenseKeysRepository.find({
-        where: { product },
-        relations: ['product'],
-        skip,
-        take,
-        order: {
-          [order || 'id']: direction || 'ASC',
-        },
-      });
-
-      if (licenseKeys.length === 0) {
-        throw new InternalServerErrorException(`License keys for product ${product.name} is empty`);
       }
 
       return licenseKeys;
