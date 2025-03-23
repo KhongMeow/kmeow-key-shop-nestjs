@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseInterceptors } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { CreateOrderDto } from './dto/create-order.dto';

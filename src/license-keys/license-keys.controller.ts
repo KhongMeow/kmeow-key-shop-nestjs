@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors } from '@nestjs/common';
 import { LicenseKeysService } from './license-keys.service';
 import { CreateLicenseKeyDto } from './dto/create-license-key.dto';
 import { UpdateLicenseKeyDto } from './dto/update-license-key.dto';

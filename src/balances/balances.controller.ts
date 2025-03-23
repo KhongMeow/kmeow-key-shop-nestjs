@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
 import { BalancesService } from './balances.service';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';

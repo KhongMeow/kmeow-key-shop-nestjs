@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
 import jwtConfig from 'src/identity/config/jwt.config';
 import { Request } from 'express';
 import { REQUEST_USER_KEY } from 'src/identity/identity.constanst';

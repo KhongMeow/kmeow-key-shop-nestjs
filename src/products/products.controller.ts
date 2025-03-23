@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Query, BadRequestException, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, BadRequestException, UploadedFile } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';

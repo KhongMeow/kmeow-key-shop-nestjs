@@ -1,10 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { Express } from 'express';
 import { SlidesShowService } from './slides-show.service';
 import { CreateSlidesShowDto } from './dto/create-slides-show.dto';
 import { UpdateSlidesShowDto } from './dto/update-slides-show.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PermissionsGuard } from 'src/identity/authorization/guards/permissions/permissions.guard';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';

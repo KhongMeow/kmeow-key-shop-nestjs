@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { SetupService } from './setup.service';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';

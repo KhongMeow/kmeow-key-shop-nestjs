@@ -7,7 +7,6 @@ import { UsersService } from 'src/users/users.service';
 import { ProductsService } from 'src/products/products.service';
 import { OrderItem } from './entities/order-item.entity';
 import { LicenseKeysService } from 'src/license-keys/license-keys.service';
-import { of } from 'rxjs';
 import { BalancesService } from 'src/balances/balances.service';
 import { MailService } from 'src/mails/mail.service';
 import Redis from 'ioredis';
