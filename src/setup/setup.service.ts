@@ -77,6 +77,11 @@ export class SetupService {
       { name: 'Delete License Key' },
       { name: 'List Orders' },
       { name: 'Select Order' },
+      { name: 'List Balances' },
+      { name: 'Select Balance' },
+      { name: 'Delete Balance' },
+      { name: 'Increase Amount' },
+      { name: 'Decrease Amount' },
     ];
 
     for (const permission of defaultPermissions) {

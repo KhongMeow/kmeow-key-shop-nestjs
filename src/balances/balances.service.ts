@@ -10,6 +10,7 @@ export class BalancesService {
     @InjectRepository(Balance) private readonly balancesRepository: Repository<Balance>,
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
+  
   async create(user: User): Promise<Balance> {
     try {
       const balance = new Balance();

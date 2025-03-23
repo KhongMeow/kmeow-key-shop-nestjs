@@ -25,6 +25,12 @@ export class BalancesController {
     return this.balancesService.findAll(page, limit, order, direction);
   }
 
+  @Get('my-balance')
+  myBalance(@ActiveUser() user: ActiveUserData) {
+    const userId = user.sub;
+    return this.balancesService.myBalance(userId);
+  }
+
   @Get(':id')
   @Permissions('select-balance')
   findOne(
@@ -33,15 +39,21 @@ export class BalancesController {
     return this.balancesService.findOne(+id);
   }
 
-  @Get('my-balance')
-  myBalance(@ActiveUser() user: ActiveUserData) {
-    const userId = user.sub;
-    return this.balancesService.myBalance(userId);
-  }
-
   @Delete(':id')
   @Permissions('delete-balance')
   remove(@Param('id') id: string) {
     return this.balancesService.remove(+id);
+  }
+
+  @Post('increase-amount')
+  @Permissions('increase-amount')
+  increaseAmount(@Body() balanceId: number, amount: number) {
+    return this.balancesService.increaseAmount(balanceId, amount);
+  }
+
+  @Post('decrease-amount')
+  @Permissions('decrease-amount')
+  decreaseAmount(@Body() balanceId: number, amount: number) {
+    return this.balancesService.decreaseAmount(balanceId, amount);
   }
 }
