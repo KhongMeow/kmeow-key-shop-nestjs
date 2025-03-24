@@ -85,6 +85,24 @@ export class UsersService {
     }
   }
 
+  async myProfile(id: number) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id },
+        relations: ['role.rolePermissions.permission', 'balance'],
+        select: ['id', 'fullname', 'username', 'email', 'role', 'balance'],
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with id ${id} is not found`);
+      }
+
+      return user;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async changeRole(id: number, changeRoleDto: ChangeRoleDto) {
     try {
       const user = await this.findOne(id);

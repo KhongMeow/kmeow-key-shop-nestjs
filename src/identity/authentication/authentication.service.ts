@@ -46,9 +46,13 @@ export class AuthenticationService {
   async sendVerificationEmail(sendVerifyEmailDto: SendVerifyEmailDto): Promise<void> {
     try {
       const { email } = sendVerifyEmailDto;
-      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a new 6-digit code
-      await this.redis.set(`verificationCode:${email}`, verificationCode, 'EX', 180); // Store the code in Redis with 3mn expiration
-  
+      let verificationCode = await this.redis.get(`verificationCode:${email}`);
+
+      if (!verificationCode) {
+        verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a new 6-digit code
+        await this.redis.set(`verificationCode:${email}`, verificationCode, 'EX', 180); // Store the code in Redis with 3mn expiration
+      }
+
       await this.mailsService.sendMail(email, 'Email Verification', `Your verification code is: ${verificationCode}`);
     } catch (error) {
       throw new InternalServerErrorException(error.message);

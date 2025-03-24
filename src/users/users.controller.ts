@@ -38,7 +38,7 @@ export class UsersController {
   @Get('my-profile')
   myProfile(@ActiveUser() user: ActiveUserData) {
     const userId = user.sub;
-    return this.usersService.findOne(userId);
+    return this.usersService.myProfile(userId);
   }
 
   @Get(':id')

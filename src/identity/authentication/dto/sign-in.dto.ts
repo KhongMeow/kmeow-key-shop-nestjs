@@ -8,7 +8,6 @@ export class SignInDto {
     required: true,
   })
   @IsNotEmpty()
-  @MinLength(2)
   @IsString()
   usernameOrEmail: string;
 
