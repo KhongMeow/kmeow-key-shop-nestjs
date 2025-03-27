@@ -50,14 +50,12 @@ export class AuthenticationController {
   @Post('send-verification-email')
   @UseInterceptors(FileInterceptor(''))
   async sendVerificationEmail(@Body() sendVerifyEmailDto: SendVerifyEmailDto) {
-    await this.authService.sendVerificationEmail(sendVerifyEmailDto);
-    return { message: 'Verification email sent' };
+    return await this.authService.sendVerificationEmail(sendVerifyEmailDto);
   }
 
   @Post('verify-email')
   @UseInterceptors(FileInterceptor(''))
   async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-    await this.authService.verifyEmail(verifyEmailDto);
-    return { message: 'Email verified successfully' };
+    return await this.authService.verifyEmail(verifyEmailDto);
   }
 }

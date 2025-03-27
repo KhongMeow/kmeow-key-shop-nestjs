@@ -186,6 +186,40 @@ export class UsersService {
     }
   }
 
+  async isExistUsername(username: string) {
+    try {
+      const whereByUsername = await this.usersRepository.findOne({
+        where: { username },
+      });
+
+      if (whereByUsername) {
+        return {
+          statusCode: 409,
+          message: `User with username "${username}" already exists`
+        }
+      }
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async isExistEmail(email: string) {
+    try {
+      const whereByEmail = await this.usersRepository.findOne({
+        where: { email },
+      });
+
+      if (whereByEmail) {
+        return {
+          statusCode: 409,
+          message: `User with email "${email}" already exists`
+        }
+      }
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   private async generateSecurePassword() {
     return generator.generate({
       length: 16,

@@ -7,6 +7,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { ActiveUser } from 'src/identity/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interface';
+import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
+import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 
 @ApiBearerAuth('access-token')
 @Controller('users')
@@ -64,5 +66,19 @@ export class UsersController {
   @Permissions('delete-user')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Post('is-exist-username')
+  @Auth(AuthType.None)
+  @UseInterceptors(FileInterceptor(''))
+  isExistUsername(@Body('username') username: string) {
+    return this.usersService.isExistUsername(username);
+  }
+
+  @Post('is-exist-email')
+  @Auth(AuthType.None)
+  @UseInterceptors(FileInterceptor(''))
+  isExistEmail(@Body('email') email: string) {
+    return this.usersService.isExistEmail(email);
   }
 }

@@ -43,7 +43,7 @@ export class AuthenticationService {
     });
   }
 
-  async sendVerificationEmail(sendVerifyEmailDto: SendVerifyEmailDto): Promise<void> {
+  async sendVerificationEmail(sendVerifyEmailDto: SendVerifyEmailDto): Promise<{ status: number, message: string }> {
     try {
       const { email } = sendVerifyEmailDto;
       let verificationCode = await this.redis.get(`verificationCode:${email}`);
@@ -54,6 +54,11 @@ export class AuthenticationService {
       }
 
       await this.mailsService.sendMail(email, 'Email Verification', `Your verification code is: ${verificationCode}`);
+      
+      return {
+        status: 200,
+        message: 'Verification email sent successfully'
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -73,6 +78,11 @@ export class AuthenticationService {
       }
       
       await this.redis.del(`verificationCode:${email}`); // Remove the code from Redis after successful verification
+
+      return {
+        status: 200,
+        message: 'Email verified successfully'
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

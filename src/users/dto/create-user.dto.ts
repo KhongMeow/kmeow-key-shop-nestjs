@@ -22,7 +22,7 @@ export class CreateUserDto {
   @MinLength(2)
   @IsString()
   @Matches(/^[a-z0-9-]*$/, {
-    message: 'Username can only contain letters, numbers, and dash',
+    message: 'Username can only contain lowercase letters, numbers, and dash',
   })
   username: string;
   
