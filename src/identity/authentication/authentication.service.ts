@@ -123,7 +123,7 @@ export class AuthenticationService {
       });
 
       if (!user) {
-        throw new NotFoundException(`User with username or email ${signInDto.usernameOrEmail} is not found`);
+        throw new NotFoundException(`Incorrect username or email!`);
       }
 
       const isPasswordCorrect = await this.hashingService.compare(

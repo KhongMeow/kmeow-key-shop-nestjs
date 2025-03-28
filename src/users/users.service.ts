@@ -171,14 +171,14 @@ export class UsersService {
       });
 
       if (whereByUsername && whereByEmail) {
-        throw new ConflictException(`User with username ${username} and email ${email} already exists`);
+        throw new ConflictException(`Username ${username} and email ${email} is already exists!`);
       } else {
         if (whereByUsername) {
-          throw new ConflictException(`User with username ${username} already exists`);
+          throw new ConflictException(`Username ${username} is already exists!`);
         }
         
         if (whereByEmail) {
-          throw new ConflictException(`User with email ${email} already exists`);
+          throw new ConflictException(`Email ${email} is already exists!`);
         }
       }
     } catch (error) {
@@ -195,7 +195,7 @@ export class UsersService {
       if (whereByUsername) {
         return {
           statusCode: 409,
-          message: `User with username "${username}" already exists`
+          message: `Username "${username}" is already exists!`
         }
       }
     } catch (error) {
@@ -212,7 +212,7 @@ export class UsersService {
       if (whereByEmail) {
         return {
           statusCode: 409,
-          message: `User with email "${email}" already exists`
+          message: `Email "${email}" is already exists!`
         }
       }
     } catch (error) {
