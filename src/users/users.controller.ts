@@ -9,6 +9,7 @@ import { ActiveUser } from 'src/identity/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interface';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiBearerAuth('access-token')
 @Controller('users')
@@ -84,8 +85,8 @@ export class UsersController {
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor(''))
-  update(
-    @Param('id') id: string, updateUserDto: { fullname: string; email: string }
+  async update(
+    @Param('id') id: string, @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(+id, updateUserDto);
   }
