@@ -122,6 +122,33 @@ export class UsersService {
     }
   }
 
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      const user = await this.findOne(id);
+      
+      if (updateUserDto.fullname && (updateUserDto.fullname !== user.fullname)) {
+        await this.isExistUsername(updateUserDto.fullname);
+        user.fullname = updateUserDto.fullname;
+      }
+
+      if (updateUserDto.email && (updateUserDto.email !== user.email)) {
+        await this.isExistEmail(updateUserDto.email);
+        user.email = updateUserDto.email;
+      }
+
+      await this.usersRepository.save(user);
+      return {
+        statusCode: 200,
+        message: `User with id ${id} has been updated successfully`,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to update user: ${error.message}`);
+    }
+  }
+
   async resetPassword(id: number) {
     try {
       const user = await this.findOne(id);

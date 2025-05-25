@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
@@ -80,5 +80,13 @@ export class UsersController {
   @UseInterceptors(FileInterceptor(''))
   isExistEmail(@Body('email') email: string) {
     return this.usersService.isExistEmail(email);
+  }
+
+  @Patch(':id')
+  @UseInterceptors(FileInterceptor(''))
+  update(
+    @Param('id') id: string, updateUserDto: { fullname: string; email: string }
+  ) {
+    return this.usersService.update(+id, updateUserDto);
   }
 }
