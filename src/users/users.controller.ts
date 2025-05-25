@@ -10,6 +10,7 @@ import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interfa
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiBearerAuth('access-token')
 @Controller('users')
@@ -63,6 +64,13 @@ export class UsersController {
     return this.usersService.resetPassword(+id);
   }
 
+  @Post('change-password')
+  @UseInterceptors(FileInterceptor(''))
+  async changePassword(@ActiveUser() user: ActiveUserData, @Body() changePasswordDto: ChangePasswordDto) {
+    const userId = user['sub'];
+    return this.usersService.changePassword(userId, changePasswordDto);
+  }
+
   @Delete(':id')
   @Permissions('delete-user')
   remove(@Param('id') id: string) {
@@ -83,11 +91,10 @@ export class UsersController {
     return this.usersService.isExistEmail(email);
   }
 
-  @Patch(':id')
+  @Patch()
   @UseInterceptors(FileInterceptor(''))
-  async update(
-    @Param('id') id: string, @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(@ActiveUser() user: ActiveUserData, @Body() updateUserDto: UpdateUserDto) {
+    const userId = user['sub'];
+    return this.usersService.update(userId, updateUserDto);
   }
 }

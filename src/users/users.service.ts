@@ -14,6 +14,7 @@ import { MailService } from 'src/mails/mail.service';
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { BalancesService } from 'src/balances/balances.service';
 import { error } from 'console';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -116,6 +117,26 @@ export class UsersService {
           statusCode: 200,
           message: `Role changed to ${newRole.name} successfully`
         };
+      }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+    try {
+      const user = await this.findOne(id);
+      
+      if (user.password === changePasswordDto.currentPassword) {
+        user.password = changePasswordDto.newPassword;
+        await this.usersRepository.save(user);
+
+        return {
+          statusCode: 200,
+          message: `Password has been changed successfully`
+        };
+      } else {
+        throw new BadRequestException('Current password is incorrect');
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
