@@ -127,8 +127,8 @@ export class UsersService {
     try {
       const user = await this.findOne(id);
       
-      if (user.password === changePasswordDto.currentPassword) {
-        user.password = changePasswordDto.newPassword;
+      if (user.password === await this.hashingService.hash(changePasswordDto.currentPassword)) {
+        user.password = await this.hashingService.hash(changePasswordDto.newPassword);
         await this.usersRepository.save(user);
 
         return {
