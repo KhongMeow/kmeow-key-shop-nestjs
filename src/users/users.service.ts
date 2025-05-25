@@ -127,17 +127,22 @@ export class UsersService {
     try {
       const user = await this.findOne(id);
       
-      if (user.password === await this.hashingService.hash(changePasswordDto.currentPassword)) {
-        user.password = await this.hashingService.hash(changePasswordDto.newPassword);
-        await this.usersRepository.save(user);
+      const isPasswordCorrect = await this.hashingService.compare(
+        changePasswordDto.currentPassword,
+        user.password
+      );
 
-        return {
-          statusCode: 200,
-          message: `Password has been changed successfully`
-        };
-      } else {
+      if (!isPasswordCorrect) {
         throw new BadRequestException('Current password is incorrect');
       }
+
+      user.password = await this.hashingService.hash(changePasswordDto.newPassword);
+      await this.usersRepository.save(user);
+
+      return {
+        statusCode: 200,
+        message: `Password has been changed successfully`
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
