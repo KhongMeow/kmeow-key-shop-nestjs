@@ -94,6 +94,23 @@ export class ProductsService {
     }
   }
 
+  async findOneBySlug(slug: string): Promise<Product> {
+    try {
+      const product = await this.productsRepository.findOne({
+        where: { slug },
+        relations: ['category', 'ratings'],
+      });
+
+      if (!product) {
+        throw new NotFoundException(`Product with slug ${slug} is not found`);
+      }
+
+      return product;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async update(id: number, updateProductDto: UpdateProductDto, image: Express.Multer.File): Promise<Product> {
     try {
       const product = await this.findOne(id);

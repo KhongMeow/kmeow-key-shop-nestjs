@@ -41,10 +41,15 @@ export class ProductsController {
     return this.productsService.findAll(categoryId, categorySlug, page, limit, order, direction);
   }
 
-  @Get(':id')
+  @Get(':idOrSlug')
   @Auth(AuthType.None)
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  findOne(@Param('idOrSlug') idOrSlug: string) {
+    const isNumericId = /^\d+$/.test(idOrSlug);
+    if (isNumericId) {
+      return this.productsService.findOne(+idOrSlug);
+    } else {
+      return this.productsService.findOneBySlug(idOrSlug);
+    }
   }
 
   @Patch(':id')

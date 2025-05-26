@@ -37,7 +37,7 @@ export class CategoriesController {
   @Get(':idOrSlug')
   @Auth(AuthType.None)
   findOne(@Param('idOrSlug') idOrSlug: string) {
-    const isNumericId = /^\d+$/.test(idOrSlug); // true if all digits
+    const isNumericId = /^\d+$/.test(idOrSlug);
     if (isNumericId) {
       return this.categoriesService.findOne(+idOrSlug);
     } else {
