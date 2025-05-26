@@ -8,20 +8,25 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { join } from 'path';
 import { promises as fs } from 'fs';
 import { Category } from 'src/categories/entities/category.entity';
+import { GlobalService } from 'src/global/global.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private readonly productsRepository: Repository<Product>,
     private readonly categoriesService: CategoriesService,
+    private readonly globalService: GlobalService,
   ) {}
 
   async create(createProductDto: CreateProductDto, image: Express.Multer.File): Promise<Product> {
     try {
       const category = await this.categoriesService.findOne(createProductDto.categoryId);
       if (image) {
+        await this.isExistProduct(createProductDto.name);
+        
         const product = new Product();
         product.name = createProductDto.name;
+        product.slug = await this.globalService.convertToSlug(createProductDto.name);
         product.price = createProductDto.price;
         product.detail = createProductDto.detail;
         product.description = createProductDto.description;
@@ -101,7 +106,8 @@ export class ProductsService {
         const category = await this.categoriesService.findOne(updateProductDto.categoryId);
         product.category = category;
       }
-      
+      await this.isExistProduct(updateProductDto.name ?? product.name);
+
       product.name = updateProductDto.name ?? product.name;
       product.price = updateProductDto.price ?? product.price;
       product.detail = updateProductDto.detail ?? product.detail;
@@ -163,6 +169,23 @@ export class ProductsService {
       product.scaleRating = scaleRating;
 
       await this.productsRepository.save(product);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async isExistProduct(name: string): Promise<void> {
+    try {
+      const product = await this.productsRepository.findOne({
+        where: [
+          { name },
+          { slug: await this.globalService.convertToSlug(name) }
+        ],
+      });
+
+      if (product) {
+        throw new BadRequestException(`Product with name or slug ${name} is already exist`);
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

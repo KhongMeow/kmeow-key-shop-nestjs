@@ -13,6 +13,9 @@ export class Product {
   name: string;
 
   @Column()
+  slug: string;
+
+  @Column()
   detail: string;
 
   @Column()
