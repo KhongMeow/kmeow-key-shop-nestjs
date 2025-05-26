@@ -49,7 +49,7 @@ export class ProductsService {
       if (categoryId) {
         category = await this.categoriesService.findOne(categoryId);
       } else if (categorySlug) {
-        category = await this.categoriesService.findOne(categorySlug);
+        category = await this.categoriesService.findOneBySlug(categorySlug);
       }
 
       const products = await this.productsRepository.find({

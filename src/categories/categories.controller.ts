@@ -34,10 +34,15 @@ export class CategoriesController {
     return this.categoriesService.findAll(page, limit, order, direction);
   }
 
-  @Get(':id')
+  @Get(':idOrSlug')
   @Auth(AuthType.None)
   findOne(@Param('idOrSlug') idOrSlug: string) {
-    return this.categoriesService.findOne(+idOrSlug);
+    const isNumericId = /^\d+$/.test(idOrSlug); // true if all digits
+    if (isNumericId) {
+      return this.categoriesService.findOne(+idOrSlug);
+    } else {
+      return this.categoriesService.findOneBySlug(idOrSlug);
+    }
   }
 
   @Patch(':id')
