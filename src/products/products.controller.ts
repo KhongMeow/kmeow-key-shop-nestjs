@@ -25,18 +25,20 @@ export class ProductsController {
   @Get()
   @Auth(AuthType.None)
   @ApiQuery({ name: 'categoryId', required: false })
+  @ApiQuery({ name: 'slug', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'order', required: false })
   @ApiQuery({ name: 'direction', required: false })
   findAll(
     @Query('categoryId') categoryId?: number,
+    @Query('categorySlug') categorySlug?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
   ) {
-    return this.productsService.findAll(categoryId, page, limit, order, direction);
+    return this.productsService.findAll(categoryId, categorySlug, page, limit, order, direction);
   }
 
   @Get(':id')

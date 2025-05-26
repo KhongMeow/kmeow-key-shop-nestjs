@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { join } from 'path';
 import { promises as fs } from 'fs';
+import { Category } from 'src/categories/entities/category.entity';
 
 @Injectable()
 export class ProductsService {
@@ -38,12 +39,18 @@ export class ProductsService {
     }
   }
 
-  async findAll(categoryId?: number, page?: number, limit?: number, order?: string, direction?: string): Promise<Product[]> {
+  async findAll(categoryId?: number, categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<Product[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
 
-      const category = categoryId ? await this.categoriesService.findOne(categoryId) : undefined;
+      let category: Category | undefined;
+
+      if (categoryId) {
+        category = await this.categoriesService.findOne(categoryId);
+      } else if (categorySlug) {
+        category = await this.categoriesService.findOneBySlug(categorySlug);
+      }
 
       const products = await this.productsRepository.find({
         relations: ['category'],

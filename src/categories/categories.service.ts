@@ -64,6 +64,20 @@ export class CategoriesService {
     }
   }
 
+  async findOneBySlug(slug: string): Promise<Category> {
+    try {
+      const category = await this.categoriesRepository.findOneBy({ slug });
+
+      if (!category) {
+        throw new BadRequestException(`Category with slug ${slug} is not found`);
+      }
+
+      return category;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
     try {
       const category = await this.findOne(id);
