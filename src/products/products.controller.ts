@@ -25,7 +25,7 @@ export class ProductsController {
   @Get()
   @Auth(AuthType.None)
   @ApiQuery({ name: 'categoryId', required: false })
-  @ApiQuery({ name: 'slug', required: false })
+  @ApiQuery({ name: 'categorySlug', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'order', required: false })

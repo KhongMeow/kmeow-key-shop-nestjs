@@ -36,8 +36,8 @@ export class CategoriesController {
 
   @Get(':id')
   @Auth(AuthType.None)
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  findOne(@Param('idOrSlug') idOrSlug: string) {
+    return this.categoriesService.findOne(+idOrSlug);
   }
 
   @Patch(':id')

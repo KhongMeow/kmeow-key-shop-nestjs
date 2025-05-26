@@ -50,26 +50,16 @@ export class CategoriesService {
     }
   }
 
-  async findOne(id: number): Promise<Category> {
+  async findOne(idOrSlug: number|string): Promise<Category> {
     try {
-      const category = await this.categoriesRepository.findOneBy({ id });
+      const category = await this.categoriesRepository.findOne({
+        where: typeof idOrSlug === 'number' ? { id: idOrSlug } : { slug: idOrSlug },
+      });
 
       if (!category) {
-        throw new BadRequestException(`Category with id ${id} is not found`);
-      }
-
-      return category;
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async findOneBySlug(slug: string): Promise<Category> {
-    try {
-      const category = await this.categoriesRepository.findOneBy({ slug });
-
-      if (!category) {
-        throw new BadRequestException(`Category with slug ${slug} is not found`);
+        throw new BadRequestException(
+          `Category with ${typeof idOrSlug === 'number' ? 'id' : 'slug'} ${idOrSlug} is not found`,
+        );
       }
 
       return category;
