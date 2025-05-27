@@ -33,22 +33,22 @@ export class RolesController {
     return this.rolesService.findAll(page, limit, order, direction);
   }
 
-  @Get(':id')
+  @Get(':slug')
   @Permissions('select-role')
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(+id);
+  findOne(@Param('slug') slug: string) {
+    return this.rolesService.findOne(slug);
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @Permissions('update-role')
   @UseInterceptors(FileInterceptor(''))
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(+id, updateRoleDto);
+  update(@Param('slug') slug: string, @Body() updateRoleDto: UpdateRoleDto) {
+    return this.rolesService.update(slug, updateRoleDto);
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @Permissions('delete-role')
-  remove(@Param('id') id: string) {
-    return this.rolesService.remove(+id);
+  remove(@Param('slug') slug: string) {
+    return this.rolesService.remove(slug);
   }
 }

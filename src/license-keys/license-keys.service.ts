@@ -18,7 +18,7 @@ export class LicenseKeysService {
 
   async create(createLicenseKeyDto: CreateLicenseKeyDto): Promise<LicenseKey> {
     try {
-      const product = await this.productsService.findOne(createLicenseKeyDto.productId);
+      const product = await this.productsService.findOne(createLicenseKeyDto.productSlug);
       await this.isExistLicenseKey(createLicenseKeyDto.key);
 
       const licenseKey = new LicenseKey();
@@ -31,12 +31,12 @@ export class LicenseKeysService {
     }
   }
 
-  async findAll(productId?: number, page?: number, limit?: number, order?: string, direction?: string): Promise<LicenseKey[]> {
+  async findAll(productSlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<LicenseKey[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
 
-      const product = productId ? await this.productsService.findOne(productId) : undefined;
+      const product = productSlug ? await this.productsService.findOne(productSlug) : undefined;
 
       const licenseKeys = await this.licenseKeysRepository.find({
         relations: ['product'],
@@ -61,9 +61,9 @@ export class LicenseKeysService {
     }
   }
 
-  async findAvailableLicenseKey(productId: number, limit: number): Promise<LicenseKey[]> {
+  async findAvailableLicenseKey(productSlug: string, limit: number): Promise<LicenseKey[]> {
     try {
-      const product = await this.productsService.findOne(productId);
+      const product = await this.productsService.findOne(productSlug);
       const licenseKeys = await this.licenseKeysRepository.find({
         where: {
           product: { id: product.id },
@@ -71,7 +71,7 @@ export class LicenseKeysService {
         },
         relations: ['product'],
         take: limit,
-        order: {id: 'ASC'},
+        order: { id: 'ASC' },
       });
 
       if (!licenseKeys.length) {
@@ -84,7 +84,7 @@ export class LicenseKeysService {
     }
   }
 
-  async makeOrderdLicenseKey(licenseKeyId: number, orderItemId: number) {
+  async makeOrderdLicenseKey(licenseKeyId: string, orderItemId: number) {
     try {
       const orderItem = await this.ordersService.findOneOrderItem(orderItemId);
       const licenseKey = await this.findOne(licenseKeyId);
@@ -98,7 +98,7 @@ export class LicenseKeysService {
     }
   }
 
-  async changeStatus(licenseKeyId: number, status: string): Promise<void> {
+  async changeStatus(licenseKeyId: string, status: string): Promise<void> {
     try {
       const licenseKey = await this.findOne(licenseKeyId);
       licenseKey.status = status;
@@ -109,7 +109,7 @@ export class LicenseKeysService {
     }
   }
 
-  async clearOrderdLicenseKey(licenseKeyId: number) {
+  async clearOrderdLicenseKey(licenseKeyId: string) {
     try {
       const licenseKey = await this.findOne(licenseKeyId);
       licenseKey.orderItem = null as any;
@@ -121,7 +121,7 @@ export class LicenseKeysService {
     }
   }
 
-  async findOne(id: number): Promise<LicenseKey> {
+  async findOne(id: string): Promise<LicenseKey> {
     try {
       const licenseKey = await this.licenseKeysRepository.findOne({
         where: { id },
@@ -138,9 +138,9 @@ export class LicenseKeysService {
     }
   }
 
-  async countByProductId(productId: number): Promise<number> {
+  async countByProductSlug(productSlug: string): Promise<number> {
     try {
-      const product = await this.productsService.findOne(productId);
+      const product = await this.productsService.findOne(productSlug);
       const count = await this.licenseKeysRepository.countBy({ 
         product: { id: product.id },
         status: 'Active',
@@ -152,9 +152,9 @@ export class LicenseKeysService {
     }
   }
 
-  async update(id: number, updateLicenseKeyDto: UpdateLicenseKeyDto): Promise<LicenseKey> {
+  async update(id: string, updateLicenseKeyDto: UpdateLicenseKeyDto): Promise<LicenseKey> {
     try {
-      if (!updateLicenseKeyDto.key && !updateLicenseKeyDto.productId) {
+      if (!updateLicenseKeyDto.key && !updateLicenseKeyDto.productSlug) {
         throw new InternalServerErrorException('Key or product id must be provided');
       }
 
@@ -165,8 +165,8 @@ export class LicenseKeysService {
       const licenseKey = await this.findOne(id);
       licenseKey.key = updateLicenseKeyDto.key ?? licenseKey.key;
 
-      if (updateLicenseKeyDto.productId) {
-        const product = await this.productsService.findOne(updateLicenseKeyDto.productId);
+      if (updateLicenseKeyDto.productSlug) {
+        const product = await this.productsService.findOne(updateLicenseKeyDto.productSlug);
         licenseKey.product = product;
       }
 
@@ -176,7 +176,7 @@ export class LicenseKeysService {
     }
   }
 
-  async remove(id: number): Promise<{ status: number; message: string }> {
+  async remove(id: string): Promise<{ status: number; message: string }> {
     try {
       const licenseKey = await this.findOne(id);
       await this.licenseKeysRepository.remove(licenseKey);

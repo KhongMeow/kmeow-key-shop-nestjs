@@ -36,9 +36,9 @@ export class OrdersService {
     });
   }
 
-  async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
+  async create(createOrderDto: CreateOrderDto, username: string): Promise<Order> {
     try {      
-      const user = await this.usersService.findOne(userId);
+      const user = await this.usersService.findOne(username);
 
       const order = new Order();
       order.email = createOrderDto.email;
@@ -49,7 +49,7 @@ export class OrdersService {
 
       let totalOrderedPrice = 0;
       for (const item of createOrderDto.orderItems) {
-        const product = await this.productsService.findOne(item.productId);
+        const product = await this.productsService.findOne(item.productSlug);
 
         const orderItem = new OrderItem();
         orderItem.order = order;
@@ -58,7 +58,7 @@ export class OrdersService {
 
         await this.orderItemsRepository.save(orderItem);
 
-        const licenseKeys = await this.licenseKeysService.findAvailableLicenseKey(product.id, item.quantity);
+        const licenseKeys = await this.licenseKeysService.findAvailableLicenseKey(product.slug, item.quantity);
         for (const licenseKey of licenseKeys) {
           await this.licenseKeysService.makeOrderdLicenseKey(licenseKey.id, orderItem.id);
         }
@@ -97,10 +97,10 @@ export class OrdersService {
     }
   }
 
-  async confirmPayment(orderId: number, userId: number) {
+  async confirmPayment(orderId: number, username: string) {
     try {
       const order = await this.findOne(orderId);
-      const user = await this.usersService.findOne(userId);
+      const user = await this.usersService.findOne(username);
       
       if (order.user.id !== user.id) {
         throw new InternalServerErrorException(`This user does not have order with id ${orderId}`);
@@ -119,7 +119,7 @@ export class OrdersService {
       }
 
       // Decrease user balance
-      await this.balancesService.decreaseAmount(user.balance.id, totalOrderedPrice);
+      await this.balancesService.decreaseAmount(user.balance.slug, totalOrderedPrice);
       order.paidAt = new Date();
       await this.ordersRepository.save(order);
       await this.changeStatus(orderId, 'Paid');
@@ -141,7 +141,7 @@ export class OrdersService {
   }
 
   async findAll(
-    userId?: number,
+    username?: string,
     page?: number,
     limit?: number,
     order?: string,
@@ -153,7 +153,7 @@ export class OrdersService {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
   
-      const user = userId ? await this.usersService.findOne(userId) : undefined;
+      const user = username ? await this.usersService.findOne(username) : undefined;
   
       let where: any = user ? { user: { id: user?.id } } : {};
   
@@ -223,9 +223,9 @@ export class OrdersService {
     }
   }
 
-  async findOne(id: number, userId?: number): Promise<Order> {
+  async findOne(id: number, username?: string): Promise<Order> {
     try {
-      const user = userId ? await this.usersService.findOne(userId) : undefined;
+      const user = username ? await this.usersService.findOne(username) : undefined;
 
       const order = await this.ordersRepository.findOne({
         where: { 

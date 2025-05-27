@@ -1,16 +1,19 @@
 import { Permission } from "src/permissions/entities/permission.entity";
 import { Role } from "src/roles/entities/role.entity";
-import { CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class RolePermission {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Role, role => role.id)
+  @Column()
+  slug: string;
+
+  @ManyToOne(() => Role, role => role.slug)
   role: Role;
 
-  @ManyToOne(() => Permission, permission => permission.id)
+  @ManyToOne(() => Permission, permission => permission.slug)
   permission: Permission;
 
   @CreateDateColumn()

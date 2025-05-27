@@ -90,8 +90,8 @@ export class AuthenticationService {
 
   async signUp(signUpDto: SignUpDto) {
     try {
-      const defualtRole = await this.rolesService.findOneBySlug('user');
-      if (!defualtRole) {
+      const defaultRole = await this.rolesService.findOne('user');
+      if (!defaultRole) {
         throw new Error('Default role not found');
       }
       await this.usersService.isExistUsernameOrEmail(signUpDto.username, signUpDto.email);
@@ -101,7 +101,7 @@ export class AuthenticationService {
       user.username = signUpDto.username;
       user.email = signUpDto.email;
       user.password = await this.hashingService.hash(signUpDto.password);
-      user.role = defualtRole;
+      user.role = defaultRole;
 
       await this.usersRepository.save(user);
       await this.balancesService.create(user);

@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
 import { IsEmail, IsNotEmpty, IsNumber, IsString, Matches, MinLength } from "class-validator";
 
 export class CreateUserDto {
@@ -49,7 +48,5 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsNumber()
-  roleId: number;
+  roleSlug: string;
 }

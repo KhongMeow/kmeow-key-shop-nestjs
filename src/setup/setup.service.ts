@@ -91,12 +91,12 @@ export class SetupService {
   }
 
   private async createDefaultRolePermissions() {
-    const adminRole = await this.rolesService.findOneBySlug('admin');
+    const adminRole = await this.rolesService.findOne('admin');
     const permissions = await this.permissionsService.findAll();
 
     const defaultRolePermissions: CreateRolePermissionDto[] = permissions.map(permission => ({
-      roleId: adminRole.id,
-      permissionId: permission.id,
+      roleSlug: adminRole.slug,
+      permissionSlug: permission.slug,
     }));
 
     for (const rolePermission of defaultRolePermissions) {
@@ -105,14 +105,14 @@ export class SetupService {
   }
 
   private async createDefaultUser() {
-    const adminRole = await this.rolesService.findOneBySlug('admin');
+    const adminRole = await this.rolesService.findOne('admin');
 
     const defaultUser: CreateUserDto = {
       fullname: 'System Admin',
       username: 'system-admin',
       email: 'system_admin@example.com',
       password: 'admin123',
-      roleId: adminRole.id,
+      roleSlug: adminRole.slug,
     };
 
     await this.usersService.create(defaultUser);

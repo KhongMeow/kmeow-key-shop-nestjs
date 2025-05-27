@@ -9,6 +9,9 @@ export class SlidesShow {
   title: string;
 
   @Column()
+  slug: string;
+
+  @Column()
   image: string;
 
   @CreateDateColumn()

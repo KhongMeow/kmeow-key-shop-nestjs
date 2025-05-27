@@ -20,7 +20,7 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto, image: Express.Multer.File): Promise<Product> {
     try {
-      const category = await this.categoriesService.findOne(createProductDto.categoryId);
+      const category = await this.categoriesService.findOne(createProductDto.categorySlug);
       if (image) {
         await this.isExistProduct(createProductDto.name);
         
@@ -44,18 +44,12 @@ export class ProductsService {
     }
   }
 
-  async findAll(categoryId?: number, categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<Product[]> {
+  async findAll(categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<Product[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
 
-      let category: Category | undefined;
-
-      if (categoryId) {
-        category = await this.categoriesService.findOne(categoryId);
-      } else if (categorySlug) {
-        category = await this.categoriesService.findOneBySlug(categorySlug);
-      }
+      const category = categorySlug ? await this.categoriesService.findOne(categorySlug) : undefined;
 
       const products = await this.productsRepository.find({
         relations: ['category'],
@@ -77,24 +71,7 @@ export class ProductsService {
     }
   }
 
-  async findOne(id: number): Promise<Product> {
-    try {
-      const product = await this.productsRepository.findOne({
-        where: { id },
-        relations: ['category', 'ratings'],
-      });
-
-      if (!product) {
-        throw new NotFoundException(`Product with id ${id} is not found`);
-      }
-
-      return product;
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async findOneBySlug(slug: string): Promise<Product> {
+  async findOne(slug: string): Promise<Product> {
     try {
       const product = await this.productsRepository.findOne({
         where: { slug },
@@ -111,21 +88,22 @@ export class ProductsService {
     }
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto, image: Express.Multer.File): Promise<Product> {
+  async update(slug: string, updateProductDto: UpdateProductDto, image: Express.Multer.File): Promise<Product> {
     try {
-      const product = await this.findOne(id);
+      const product = await this.findOne(slug);
 
-      if (!updateProductDto.categoryId && !updateProductDto.name && !updateProductDto.price && !updateProductDto.detail && !updateProductDto.description) {
+      if (!updateProductDto.categorySlug && !updateProductDto.name && !updateProductDto.price && !updateProductDto.detail && !updateProductDto.description) {
         throw new BadRequestException('At least one field must be provided to update the product');
       }
 
-      if (updateProductDto.categoryId) {
-        const category = await this.categoriesService.findOne(updateProductDto.categoryId);
+      if (updateProductDto.categorySlug) {
+        const category = await this.categoriesService.findOne(updateProductDto.categorySlug);
         product.category = category;
       }
       await this.isExistProduct(updateProductDto.name ?? product.name);
 
       product.name = updateProductDto.name ?? product.name;
+      product.slug = updateProductDto.name ? await this.globalService.convertToSlug(updateProductDto.name) : product.slug;
       product.price = updateProductDto.price ?? product.price;
       product.detail = updateProductDto.detail ?? product.detail;
       product.description = updateProductDto.description ?? product.description;
@@ -142,14 +120,14 @@ export class ProductsService {
     }
   }
 
-  async remove(id: number): Promise<{ status: number, message: string }> {
+  async remove(slug: string): Promise<{ status: number, message: string }> {
     try {
-      const product = await this.findOne(id);
-      await this.productsRepository.softDelete(id);
+      const product = await this.findOne(slug);
+      await this.productsRepository.softDelete(slug);
 
       return {
         status: 200,
-        message: `Product with id ${id} has been deleted`
+        message: `Product with slug ${slug} has been deleted`
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -180,9 +158,9 @@ export class ProductsService {
     }
   }
 
-  async scaleRating(productId: number, scaleRating: number): Promise<void> {
+  async scaleRating(productSlug: string, scaleRating: number): Promise<void> {
     try {
-      const product = await this.findOne(productId);
+      const product = await this.findOne(productSlug);
       product.scaleRating = scaleRating;
 
       await this.productsRepository.save(product);

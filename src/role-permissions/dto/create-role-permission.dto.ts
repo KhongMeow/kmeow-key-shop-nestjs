@@ -9,9 +9,7 @@ export class CreateRolePermissionDto {
     required: true,
   })
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsNumber()
-  roleId: number;
+  roleSlug: string;
 
   @ApiProperty({
     example: 2,
@@ -19,7 +17,5 @@ export class CreateRolePermissionDto {
     required: true,
   })
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsNumber()
-  permissionId: number;
+  permissionSlug: string;
 }

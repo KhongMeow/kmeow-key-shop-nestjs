@@ -50,21 +50,7 @@ export class RolesService {
     }
   }
 
-  async findOne(id: number): Promise<Role> {
-    try {
-      const role = await this.rolesReposotory.findOneBy({ id });
-
-      if (!role) {
-        throw new NotFoundException(`Role with id ${id} is not found`);
-      }
-
-      return role;
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async findOneBySlug(slug: string): Promise<Role> {
+  async findOne(slug: string): Promise<Role> {
     try {
       const role = await this.rolesReposotory.findOneBy({ slug });
 
@@ -78,15 +64,15 @@ export class RolesService {
     }
   }
 
-  async getPermissionsInRole(id: number): Promise<Role> {
+  async getPermissionsInRole(slug: string): Promise<Role> {
     try {
       const role = await this.rolesReposotory.findOne({
-        where: { id },
+        where: { slug },
         relations: ['rolePermissions.permission'],
       });
 
       if (!role) {
-        throw new NotFoundException(`Role with id ${id} is not found`);
+        throw new NotFoundException(`Role with slug ${slug} is not found`);
       }
 
       return role;
@@ -95,10 +81,10 @@ export class RolesService {
     }
   }
 
-  async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
+  async update(slug: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
     try {
       if (updateRoleDto.name) {
-        const role = await this.findOne(id);
+        const role = await this.findOne(slug);
         await this.isExistRole(updateRoleDto.name);
 
         role.name = updateRoleDto.name;
@@ -113,9 +99,9 @@ export class RolesService {
     }
   }
 
-  async remove(id: number): Promise<{ status: number, message: string }> {
+  async remove(slug: string): Promise<{ status: number, message: string }> {
     try {
-      const role = await this.findOne(id);
+      const role = await this.findOne(slug);
 
       if(role.users.length > 0) {
         throw new ConflictException(`This role was used by ${role.users.length} user(s)`);
@@ -125,11 +111,11 @@ export class RolesService {
         throw new ConflictException(`This role was used by ${role.rolePermissions.length} role permission(s)`);
       }
 
-      await this.rolesReposotory.softDelete(id);
+      await this.rolesReposotory.softDelete(slug);
 
       return {
         status: 200,
-        message: `Role with id ${id} has been deleted`
+        message: `Role with slug ${slug} has been deleted`
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

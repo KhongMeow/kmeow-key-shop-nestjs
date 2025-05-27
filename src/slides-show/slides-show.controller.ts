@@ -36,22 +36,22 @@ export class SlidesShowController {
     return this.slidesShowService.findAll(page, limit, order, direction);
   }
 
-  @Get(':id')
+  @Get(':slug')
   @Auth(AuthType.None)
-  findOne(@Param('id') id: string) {
-    return this.slidesShowService.findOne(+id);
+  findOne(@Param('slug') slug: string) {
+    return this.slidesShowService.findOne(slug);
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @Permissions('update-slide-show')
   @UseInterceptors(FileInterceptor('image'))
-  update(@Param('id') id: string, @Body() updateSlidesShowDto: UpdateSlidesShowDto, @UploadedFile() image: Express.Multer.File) {
-    return this.slidesShowService.update(+id, updateSlidesShowDto, image);
+  update(@Param('slug') slug: string, @Body() updateSlidesShowDto: UpdateSlidesShowDto, @UploadedFile() image: Express.Multer.File) {
+    return this.slidesShowService.update(slug, updateSlidesShowDto, image);
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @Permissions('delete-slide-show')
-  remove(@Param('id') id: string) {
-    return this.slidesShowService.remove(+id);
+  remove(@Param('slug') slug: string) {
+    return this.slidesShowService.remove(slug);
   }
 }

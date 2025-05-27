@@ -16,10 +16,10 @@ export class RatingProductsService {
     private readonly usersService: UsersService,
   ) {}
 
-  async create(productId: number, createRatingProductDto: CreateRatingProductDto, userId: number): Promise<RatingProduct> {
+  async create(productSlug: string, createRatingProductDto: CreateRatingProductDto, username: string): Promise<RatingProduct> {
     try {
-      const product = await this.productsService.findOne(productId);
-      const user = await this.usersService.findOne(userId);
+      const product = await this.productsService.findOne(productSlug);
+      const user = await this.usersService.findOne(username);
     
       const ratingProduct = new RatingProduct();
       ratingProduct.rating = createRatingProductDto.rating;
@@ -29,8 +29,8 @@ export class RatingProductsService {
       
       this.ratingProductRepository.save(ratingProduct);
 
-      const scaleRating = await this.getAverageRating(product.id);
-      await this.productsService.scaleRating(product.id, scaleRating);
+      const scaleRating = await this.getAverageRating(product.slug);
+      await this.productsService.scaleRating(product.slug, scaleRating);
       return ratingProduct;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -53,8 +53,8 @@ export class RatingProductsService {
     }
   }
 
-  private async getAverageRating(productId: number): Promise<number> {
-    const product = await this.productsService.findOne(productId);
+  private async getAverageRating(productSlug: string): Promise<number> {
+    const product = await this.productsService.findOne(productSlug);
 
     const ratings = await this.ratingProductRepository.find({
       where: { product: { id: product.id } },
@@ -79,8 +79,8 @@ export class RatingProductsService {
 
       this.ratingProductRepository.save(ratingProduct);
 
-      const scaleRating = await this.getAverageRating(ratingProduct.product.id);
-      await this.productsService.scaleRating(ratingProduct.product.id, scaleRating);
+      const scaleRating = await this.getAverageRating(ratingProduct.product.slug);
+      await this.productsService.scaleRating(ratingProduct.product.slug, scaleRating);
       return ratingProduct;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -92,8 +92,8 @@ export class RatingProductsService {
       const ratingProduct = await this.findOne(id);
       this.ratingProductRepository.softDelete(ratingProduct.id);
 
-      const scaleRating = await this.getAverageRating(ratingProduct.product.id);
-      await this.productsService.scaleRating(ratingProduct.product.id, scaleRating);
+      const scaleRating = await this.getAverageRating(ratingProduct.product.slug);
+      await this.productsService.scaleRating(ratingProduct.product.slug, scaleRating);
       
       return {
         status: 200,

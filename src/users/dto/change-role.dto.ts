@@ -1,15 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
 import { IsNotEmpty, IsNumber } from "class-validator";
 
 export class ChangeRoleDto {
   @ApiProperty({
-    example: 1,
-    description: 'New role ID',
+    example: 'admin',
+    description: 'New role slug',
     required: true,
   })
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsNumber()
-  newRoleId: number;
+  newRoleSlug: string;
 }

@@ -6,6 +6,9 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOn
 export class Balance {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  slug: string;
   
   @Column("decimal", { precision: 10, scale: 2, default: 0 })
   @Min(0)

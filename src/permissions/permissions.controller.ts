@@ -33,22 +33,22 @@ export class PermissionsController {
     return this.permissionsService.findAll(page, limit, order, direction);
   }
 
-  @Get(':id')
+  @Get(':slug')
   @Permissions('select-permission')
-  findOne(@Param('id') id: string) {
-    return this.permissionsService.findOne(+id);
+  findOne(@Param('slug') slug: string) {
+    return this.permissionsService.findOne(slug);
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @Permissions('update-permission')
   @UseInterceptors(FileInterceptor(''))
-  update(@Param('id') id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
-    return this.permissionsService.update(+id, updatePermissionDto);
+  update(@Param('slug') slug: string, @Body() updatePermissionDto: UpdatePermissionDto) {
+    return this.permissionsService.update(slug, updatePermissionDto);
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @Permissions('delete-permission')
-  remove(@Param('id') id: string) {
-    return this.permissionsService.remove(+id);
+  remove(@Param('slug') slug: string) {
+    return this.permissionsService.remove(slug);
   }
 }

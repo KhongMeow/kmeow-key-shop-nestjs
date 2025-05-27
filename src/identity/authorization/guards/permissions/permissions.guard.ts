@@ -28,8 +28,8 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('Invalid token');
     }
 
-    const roleId = user.role.id;
-    const role = await this.rolesService.getPermissionsInRole(roleId);
+    const roleSlug = user.role.slug;
+    const role = await this.rolesService.getPermissionsInRole(roleSlug);
 
     if (!role.rolePermissions) {
       throw new ForbiddenException('You do not have any permission');

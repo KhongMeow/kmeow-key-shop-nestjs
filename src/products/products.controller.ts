@@ -24,44 +24,37 @@ export class ProductsController {
 
   @Get()
   @Auth(AuthType.None)
-  @ApiQuery({ name: 'categoryId', required: false })
   @ApiQuery({ name: 'categorySlug', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'order', required: false })
   @ApiQuery({ name: 'direction', required: false })
   findAll(
-    @Query('categoryId') categoryId?: number,
     @Query('categorySlug') categorySlug?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
   ) {
-    return this.productsService.findAll(categoryId, categorySlug, page, limit, order, direction);
+    return this.productsService.findAll(categorySlug, page, limit, order, direction);
   }
 
-  @Get(':idOrSlug')
+  @Get(':slug')
   @Auth(AuthType.None)
-  findOne(@Param('idOrSlug') idOrSlug: string) {
-    const isNumericId = /^\d+$/.test(idOrSlug);
-    if (isNumericId) {
-      return this.productsService.findOne(+idOrSlug);
-    } else {
-      return this.productsService.findOneBySlug(idOrSlug);
-    }
+  findOne(@Param('slug') slug: string) {
+    return this.productsService.findOne(slug);
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @Permissions('update-product')
   @UseInterceptors(FileInterceptor('image'))
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto, @UploadedFile() image: Express.Multer.File) {
-    return this.productsService.update(+id, updateProductDto, image);
+  update(@Param('slug') slug: string, @Body() updateProductDto: UpdateProductDto, @UploadedFile() image: Express.Multer.File) {
+    return this.productsService.update(slug, updateProductDto, image);
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @Permissions('delete-product')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  remove(@Param('slug') slug: string) {
+    return this.productsService.remove(slug);
   }
 }

@@ -33,21 +33,21 @@ export class RolePermissionsController {
   return this.rolePermissionsService.findAll(page, limit, order, direction);
   }
 
-  @Get(':id')
+  @Get(':slug')
   @Permissions('select-role-permission')
-  findOne(@Param('id') id: string) {
-    return this.rolePermissionsService.findOne(+id);
+  findOne(@Param('slug') slug: string) {
+    return this.rolePermissionsService.findOne(slug);
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @Permissions('update-role-permission')
-  update(@Param('id') id: string, @Body() updateRolePermissionDto: UpdateRolePermissionDto) {
-    return this.rolePermissionsService.update(+id, updateRolePermissionDto);
+  update(@Param('slug') slug: string, @Body() updateRolePermissionDto: UpdateRolePermissionDto) {
+    return this.rolePermissionsService.update(slug, updateRolePermissionDto);
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @Permissions('delete-role-permission')
-  remove(@Param('id') id: string) {
-    return this.rolePermissionsService.remove(+id);
+  remove(@Param('slug') slug: string) {
+    return this.rolePermissionsService.remove(slug);
   }
 }

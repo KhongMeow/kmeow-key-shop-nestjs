@@ -9,19 +9,19 @@ import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interfa
 export class RatingProductsController {
   constructor(private readonly ratingProductsService: RatingProductsService) {}
 
-  @Post(':productId')
+  @Post(':productSlug')
   create(
-    @Param('productId') productId: number,
+    @Param('productSlug') productSlug: string,
     @Body() createRatingProductDto: CreateRatingProductDto,
     @ActiveUser() user: ActiveUserData,
   ) {
-    const userId = user.sub;
-    return this.ratingProductsService.create(productId, createRatingProductDto, userId);
+    const username = user.username;
+    return this.ratingProductsService.create(productSlug, createRatingProductDto, username);
   }
 
-  @Post(':productId')
-  update(@Param('productId') productId: number, @Body() updateRatingProductDto: UpdateRatingProductDto) {
-    return this.ratingProductsService.update(productId, updateRatingProductDto);
+  @Post(':id')
+  update(@Param('id') id: string, @Body() updateRatingProductDto: UpdateRatingProductDto) {
+    return this.ratingProductsService.update(+id, updateRatingProductDto);
   }
 
   @Delete(':id')

@@ -34,27 +34,22 @@ export class CategoriesController {
     return this.categoriesService.findAll(page, limit, order, direction);
   }
 
-  @Get(':idOrSlug')
+  @Get(':slug')
   @Auth(AuthType.None)
-  findOne(@Param('idOrSlug') idOrSlug: string) {
-    const isNumericId = /^\d+$/.test(idOrSlug);
-    if (isNumericId) {
-      return this.categoriesService.findOne(+idOrSlug);
-    } else {
-      return this.categoriesService.findOneBySlug(idOrSlug);
-    }
+  findOne(@Param('slug') slug: string) {
+    return this.categoriesService.findOne(slug);
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @Permissions('update-category')
   @UseInterceptors(FileInterceptor(''))
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  update(@Param('slug') slug: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    return this.categoriesService.update(slug, updateCategoryDto);
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @Permissions('delete-category')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  remove(@Param('slug') slug: string) {
+    return this.categoriesService.remove(slug);
   }
 }

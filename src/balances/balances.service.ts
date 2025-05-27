@@ -14,6 +14,7 @@ export class BalancesService {
   async create(user: User): Promise<Balance> {
     try {
       const balance = new Balance();
+      balance.slug = user.username + '-balance';
       balance.user = user;
 
       return await this.balancesRepository.save(balance);
@@ -46,15 +47,15 @@ export class BalancesService {
     }
   }
 
-  async findOne(id: number): Promise<Balance> {
+  async findOne(slug: string): Promise<Balance> {
     try {
       const balance = await this.balancesRepository.findOne({
-        where: { id },
+        where: { slug },
         relations: ['user'],
       });
 
       if (!balance) {
-        throw new NotFoundException(`Balance with id ${id} is not found`);
+        throw new NotFoundException(`Balance with slug ${slug} is not found`);
       }
 
       return balance;
@@ -63,10 +64,10 @@ export class BalancesService {
     }
   }
 
-  async myBalance(userId: number): Promise<Balance> {
+  async myBalance(username: string): Promise<Balance> {
     try {
       const balance = await this.balancesRepository.findOne({
-        where: { user: {id: userId} },
+        where: { user: {username} },
         relations: ['user'],
       });
 
@@ -80,9 +81,9 @@ export class BalancesService {
     }
   }
 
-  async increaseAmount(id: number, amount: number) {
+  async increaseAmount(slug: string, amount: number) {
     try {
-      const balance = await this.findOne(id);
+      const balance = await this.findOne(slug);
       balance.amount += amount;
 
       return await this.balancesRepository.save(balance);
@@ -91,9 +92,9 @@ export class BalancesService {
     }
   }
 
-  async decreaseAmount(id: number, amount: number) {
+  async decreaseAmount(slug: string, amount: number) {
     try {
-      const balance = await this.findOne(id);
+      const balance = await this.findOne(slug);
 
       if (balance.amount < amount) {
         throw new InternalServerErrorException('Insufficient balance');
@@ -107,15 +108,15 @@ export class BalancesService {
     }
   }
 
-  async remove(id: number): Promise<{ statusCode: number; message: string }> {
+  async remove(slug: string): Promise<{ statusCode: number; message: string }> {
     try {
-      const balance = await this.findOne(id);
-  
-      await this.balancesRepository.softDelete(id);
-  
+      const balance = await this.findOne(slug);
+
+      await this.balancesRepository.softDelete(slug);
+
       return {
         statusCode: 200,
-        message: `Balance with id ${id} has been deleted`,
+        message: `Balance with slug ${slug} has been deleted`,
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

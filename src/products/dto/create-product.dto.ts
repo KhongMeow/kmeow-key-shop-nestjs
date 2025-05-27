@@ -42,12 +42,10 @@ export class CreateProductDto {
   price: number;
 
   @ApiProperty({
-    example: 1,
-    description: 'The category ID',
+    example: 'software',
+    description: 'The category slug of the product',
     required: true,
   })
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  categoryId: number;
+  categorySlug: string;
 }

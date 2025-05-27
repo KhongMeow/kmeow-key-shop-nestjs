@@ -50,21 +50,7 @@ export class CategoriesService {
     }
   }
 
-  async findOne(id: number): Promise<Category> {
-    try {
-      const category = await this.categoriesRepository.findOneBy({ id });
-
-      if (!category) {
-        throw new BadRequestException(`Category with id ${id} is not found`);
-      }
-
-      return category;
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async findOneBySlug(slug: string): Promise<Category> {
+  async findOne(slug: string): Promise<Category> {
     try {
       const category = await this.categoriesRepository.findOneBy({ slug });
 
@@ -78,9 +64,9 @@ export class CategoriesService {
     }
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+  async update(slug: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
     try {
-      const category = await this.findOne(id);
+      const category = await this.findOne(slug);
       if (updateCategoryDto.name) {
         await this.isExistCategory(updateCategoryDto.name);
 
@@ -96,15 +82,15 @@ export class CategoriesService {
     }
   }
 
-  async remove(id: number): Promise<{ status: number; message: string }> {
+  async remove(slug: string): Promise<{ status: number; message: string }> {
     try {
-      const category = await this.findOne(id);
+      const category = await this.findOne(slug);
 
-      await this.categoriesRepository.softDelete(id);
+      await this.categoriesRepository.softDelete(slug);
 
       return {
         status: 200,
-        message: `Category with id ${id} has been deleted`,
+        message: `Category with slug ${slug} has been deleted`,
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

@@ -11,7 +11,7 @@ export class CreateOrderItemDto {
   @IsNotEmpty()
   @Transform(({ value }) => parseInt(value))
   @IsNumber()
-  productId: number;
+  productSlug: string;
 
   @ApiProperty({
     example: 2,

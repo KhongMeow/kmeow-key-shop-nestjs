@@ -30,7 +30,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const role = await this.rolesService.findOne(createUserDto.roleId);
+      const role = await this.rolesService.findOne(createUserDto.roleSlug);
       await this.isExistUsernameOrEmail(createUserDto.username, createUserDto.email);
 
       const user = new User();
@@ -69,15 +69,15 @@ export class UsersService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(username: string) {
     try {
       const user = await this.usersRepository.findOne({
-        where: { id },
+        where: { username },
         relations: ['role', 'balance'],
       });
 
       if (!user) {
-        throw new NotFoundException(`User with id ${id} is not found`);
+        throw new NotFoundException(`User with username ${username} is not found`);
       }
 
       return user;
@@ -86,16 +86,16 @@ export class UsersService {
     }
   }
 
-  async myProfile(id: number) {
+  async myProfile(username: string) {
     try {
       const user = await this.usersRepository.findOne({
-        where: { id },
+        where: { username },
         relations: ['role.rolePermissions.permission', 'balance'],
         select: ['id', 'fullname', 'username', 'email', 'role', 'balance'],
       });
 
       if (!user) {
-        throw new NotFoundException(`User with id ${id} is not found`);
+        throw new NotFoundException(`User with username ${username} is not found`);
       }
 
       return user;
@@ -104,10 +104,10 @@ export class UsersService {
     }
   }
 
-  async changeRole(id: number, changeRoleDto: ChangeRoleDto) {
+  async changeRole(username: string, changeRoleDto: ChangeRoleDto) {
     try {
-      const user = await this.findOne(id);
-      const newRole = await this.rolesService.findOne(changeRoleDto.newRoleId);
+      const user = await this.findOne(username);
+      const newRole = await this.rolesService.findOne(changeRoleDto.newRoleSlug);
       
       if (user) {
         user.role = newRole;
@@ -123,9 +123,9 @@ export class UsersService {
     }
   }
 
-  async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
+  async changePassword(username: string, changePasswordDto: ChangePasswordDto) {
     try {
-      const user = await this.findOne(id);
+      const user = await this.findOne(username);
       
       const isPasswordCorrect = await this.hashingService.compare(
         changePasswordDto.currentPassword,
@@ -148,9 +148,9 @@ export class UsersService {
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(username: string, updateUserDto: UpdateUserDto) {
   try {
-    const user = await this.findOne(id);
+    const user = await this.findOne(username);
 
     if (
       updateUserDto.fullname &&
@@ -171,7 +171,7 @@ export class UsersService {
     await this.usersRepository.save(user);
     return {
       statusCode: 200,
-      message: `User with id ${id} has been updated successfully`,
+      message: `User with username ${username} has been updated successfully`,
     };
   } catch (error) {
     if (error instanceof NotFoundException) {
@@ -183,9 +183,9 @@ export class UsersService {
   }
 }
 
-  async resetPassword(id: number) {
+  async resetPassword(username: string) {
     try {
-      const user = await this.findOne(id);
+      const user = await this.findOne(username);
       const newPassword = await this.generateSecurePassword();
       
       if (user) {
@@ -203,18 +203,18 @@ export class UsersService {
     }
   }
 
-  async remove(id: number) {
+  async remove(username: string) {
     try {
-      const user = await this.findOne(id);
+      const user = await this.findOne(username);
       
-      await this.usersRepository.softDelete(id);
+      await this.usersRepository.softDelete(username);
       if (user.balance) {
-        await this.balancesService.remove(user.balance.id);
+        await this.balancesService.remove(user.balance.slug);
       }
   
       return {
         statusCode: 200,
-        message: `User with id ${id} has been deleted`
+        message: `User with username ${username} has been deleted`
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

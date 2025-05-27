@@ -41,40 +41,40 @@ export class UsersController {
 
   @Get('my-profile')
   myProfile(@ActiveUser() user: ActiveUserData) {
-    const userId = user.sub;
-    return this.usersService.myProfile(userId);
+    const username = user.username;
+    return this.usersService.myProfile(username);
   }
 
-  @Get(':id')
+  @Get(':username')
   @Permissions('select-user')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@Param('username') username: string) {
+    return this.usersService.findOne(username);
   }
 
-  @Post('change-role/:id')
+  @Post('change-role/:username')
   @Permissions('change-role-user')
   @UseInterceptors(FileInterceptor(''))
-  changeRole(@Param('id') id: string, @Body() changeRoleDto: ChangeRoleDto) {
-    return this.usersService.changeRole(+id, changeRoleDto);
+  changeRole(@Param('username') username: string, @Body() changeRoleDto: ChangeRoleDto) {
+    return this.usersService.changeRole(username, changeRoleDto);
   }
 
-  @Post('reset-password/:id')
+  @Post('reset-password/:username')
   @Permissions('reset-password-user')
-  resetPassword(@Param('id') id: string) {
-    return this.usersService.resetPassword(+id);
+  resetPassword(@Param('username') username: string) {
+    return this.usersService.resetPassword(username);
   }
 
   @Post('change-password')
   @UseInterceptors(FileInterceptor(''))
   async changePassword(@ActiveUser() user: ActiveUserData, @Body() changePasswordDto: ChangePasswordDto) {
-    const userId = user['sub'];
-    return this.usersService.changePassword(userId, changePasswordDto);
+    const username = user['username'];
+    return this.usersService.changePassword(username, changePasswordDto);
   }
 
-  @Delete(':id')
+  @Delete(':username')
   @Permissions('delete-user')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  remove(@Param('username') username: string) {
+    return this.usersService.remove(username);
   }
 
   @Post('is-exist-username')
@@ -94,7 +94,7 @@ export class UsersController {
   @Patch()
   @UseInterceptors(FileInterceptor(''))
   async update(@ActiveUser() user: ActiveUserData, @Body() updateUserDto: UpdateUserDto) {
-    const userId = user['sub'];
-    return this.usersService.update(userId, updateUserDto);
+    const username = user['username'];
+    return this.usersService.update(username, updateUserDto);
   }
 }

@@ -8,6 +8,7 @@ import { PermissionsService } from 'src/permissions/permissions.service';
 import { RolesService } from 'src/roles/roles.service';
 import { Role } from 'src/roles/entities/role.entity';
 import { Permission } from 'src/permissions/entities/permission.entity';
+import { GlobalService } from 'src/global/global.service';
 
 @Injectable()
 export class RolePermissionsService {
@@ -15,15 +16,17 @@ export class RolePermissionsService {
     @InjectRepository(RolePermission) private readonly rolePermissionsRepository: Repository<RolePermission>,
     private readonly rolesService: RolesService,
     private readonly permissionsService: PermissionsService,
+    private readonly globalService: GlobalService,
   ) {}
 
   async create(createRolePermissionDto: CreateRolePermissionDto): Promise<RolePermission> {
     try {
-      const role = await this.rolesService.findOne(createRolePermissionDto.roleId);
-      const permission = await this.permissionsService.findOne(createRolePermissionDto.permissionId);
+      const role = await this.rolesService.findOne(createRolePermissionDto.roleSlug);
+      const permission = await this.permissionsService.findOne(createRolePermissionDto.permissionSlug);
       await this.isExistRolePermission(role, permission);
 
       const rolePermission = new RolePermission();
+      rolePermission.slug = await this.globalService.convertToSlug(`${permission.slug}-on-${role.slug}`);
       rolePermission.role = role;
       rolePermission.permission = permission;
 
@@ -57,10 +60,10 @@ export class RolePermissionsService {
     }
   }
 
-  async findOne(id: number): Promise<RolePermission> {
+  async findOne(slug: string): Promise<RolePermission> {
     try {
       const rolePermission = await this.rolePermissionsRepository.findOne({
-        where: { id },
+        where: { slug },
         relations: ['role', 'permission'],
       });
 
@@ -74,20 +77,20 @@ export class RolePermissionsService {
     }
   }
 
-  async update(id: number, updateRolePermissionDto: UpdateRolePermissionDto): Promise<RolePermission> {
+  async update(slug: string, updateRolePermissionDto: UpdateRolePermissionDto): Promise<RolePermission> {
     try {
-      const rolePermission = await this.findOne(id);
-      const { roleId, permissionId } = updateRolePermissionDto;
+      const rolePermission = await this.findOne(slug);
+      const { roleSlug, permissionSlug } = updateRolePermissionDto;
 
-      if (roleId === undefined || permissionId === undefined) {
+      if (roleSlug === undefined || permissionSlug === undefined) {
         throw new BadRequestException('Role or Permission must be defined');
       }
 
-      const effectiveRoleId = roleId !== undefined ? roleId : rolePermission.role.id;
-      const effectivePermissionId = permissionId !== undefined ? permissionId : rolePermission.permission.id;
+      const effectiveRoleSlug = roleSlug !== undefined ? roleSlug : rolePermission.role.slug;
+      const effectivePermissionSlug = permissionSlug !== undefined ? permissionSlug : rolePermission.permission.slug;
 
-      const newRole = await this.rolesService.findOne(effectiveRoleId);
-      const newPermission = await this.permissionsService.findOne(effectivePermissionId);
+      const newRole = await this.rolesService.findOne(effectiveRoleSlug);
+      const newPermission = await this.permissionsService.findOne(effectivePermissionSlug);
 
       await this.isExistRolePermission(newRole, newPermission);
 
@@ -104,14 +107,14 @@ export class RolePermissionsService {
     }
   }
 
-  async remove(id: number): Promise<{ status: number; message: string }> {
+  async remove(slug: string): Promise<{ status: number; message: string }> {
     try {
-      const rolePermission = await this.findOne(id);
-      await this.rolePermissionsRepository.softDelete(id);
+      const rolePermission = await this.findOne(slug);
+      await this.rolePermissionsRepository.softDelete(slug);
 
       return {
         status: 200,
-        message: `Role Permission with id ${id} has been deleted`,
+        message: `Role Permission with slug ${slug} has been deleted`,
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

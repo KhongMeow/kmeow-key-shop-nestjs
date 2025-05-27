@@ -51,15 +51,15 @@ export class PermissionsService {
     }
   }
 
-  async findOne(id: number): Promise<Permission> {
+  async findOne(slug: string): Promise<Permission> {
     try {
       const permission = await this.permissionsRepository.findOne({
-        where: { id },
+        where: { slug },
         relations: ['rolePermissions.role'],
       });
 
       if (!permission) {
-        throw new InternalServerErrorException(`Permission with id ${id} is not found`);
+        throw new InternalServerErrorException(`Permission with slug ${slug} is not found`);
       }
 
       return permission;
@@ -68,10 +68,10 @@ export class PermissionsService {
     }
   }
 
-  async update(id: number, updatePermissionDto: UpdatePermissionDto): Promise<Permission> {
+  async update(slug: string, updatePermissionDto: UpdatePermissionDto): Promise<Permission> {
     try {
       if (updatePermissionDto.name) {
-        const permission = await this.findOne(id);
+        const permission = await this.findOne(slug);
         await this.isExistPermission(updatePermissionDto.name);
 
         permission.name = updatePermissionDto.name;
@@ -86,19 +86,19 @@ export class PermissionsService {
     }
   }
 
-  async remove(id: number): Promise<{ status: number; message: string }> {
+  async remove(slug: string): Promise<{ status: number; message: string }> {
     try {
-      const permission = await this.findOne(id);
+      const permission = await this.findOne(slug);
 
       if (permission.rolePermissions.length > 0) {
         throw new BadRequestException(`This permission was used by ${permission.rolePermissions.length} role permission(s)`)
       }
 
-      await this.permissionsRepository.softDelete(id);
+      await this.permissionsRepository.softDelete(slug);
 
       return {
         status: 200,
-        message: `Permission with id ${id} has been deleted`
+        message: `Permission with slug ${slug} has been deleted`
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

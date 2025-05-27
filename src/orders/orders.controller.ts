@@ -14,14 +14,14 @@ export class OrdersController {
   @Post()
   @UseInterceptors(FileInterceptor(''))
   create(@Body() createOrderDto: CreateOrderDto, @ActiveUser() user: ActiveUserData) {
-    const userId = user.sub;
-    return this.ordersService.create(createOrderDto, userId);
+    const username = user.username;
+    return this.ordersService.create(createOrderDto, username);
   }
 
   @Post('confirm-payment')
   confirmPayment(@Body() orderId: number, @ActiveUser() user: ActiveUserData) {
-    const userId = user.sub;
-    return this.ordersService.confirmPayment(orderId, userId);
+    const username = user.username;
+    return this.ordersService.confirmPayment(orderId, username);
   }
 
   @Get('my-orders')
@@ -40,13 +40,13 @@ export class OrdersController {
     @Query('status') status?: 'Order Created' | 'Waiting Payment' | 'Paid' | 'Delivered' | 'Failed to Deliver' | 'Order Completed' | 'Cancelled',
     @Query('period') period?: 'thisWeek' | 'thisMonth' | 'thisYear' | 'oneWeekBefore' | 'oneMonthBefore' | '3monthsBefore' | '6monthsBefore' | '1yearBefore',
   ) {
-    const userId = user.sub;
-    return this.ordersService.findAll(userId, page, limit, order, direction, status, period);
+    const username = user.username;
+    return this.ordersService.findAll(username, page, limit, order, direction, status, period);
   }
 
   @Get()
   @Permissions('list-orders')
-  @ApiQuery({ name: 'userId', required: false })
+  @ApiQuery({ name: 'username', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'order', required: false })
@@ -54,7 +54,7 @@ export class OrdersController {
   @ApiQuery({ name: 'status', required: false, enum: ['Order Created', 'Waiting Payment', 'Paid', 'Delivered', 'Failed to Deliver', 'Order Completed', 'Cancelled'] })
   @ApiQuery({ name: 'period', required: false, enum: ['thisWeek', 'thisMonth', 'thisYear', 'oneWeekBefore', 'oneMonthBefore', '3monthsBefore', '6monthsBefore', '1yearBefore'] })
   findAll(
-    @Query('userId') userId?: number,
+    @Query('username') username?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('order') order?: string,
@@ -62,7 +62,7 @@ export class OrdersController {
     @Query('status') status?: 'Order Created' | 'Waiting Payment' | 'Paid' | 'Delivered' | 'Failed to Deliver' | 'Order Completed' | 'Cancelled',
     @Query('period') period?: 'thisWeek' | 'thisMonth' | 'thisYear' | 'oneWeekBefore' | 'oneMonthBefore' | '3monthsBefore' | '6monthsBefore' | '1yearBefore',
   ) {
-    return this.ordersService.findAll(userId, page, limit, order, direction, status, period);
+    return this.ordersService.findAll(username, page, limit, order, direction, status, period);
   }
 
   @Get('my-order/:id')
@@ -70,16 +70,16 @@ export class OrdersController {
     @Param('id') id: string,
     @ActiveUser() user: ActiveUserData
   ) {
-    const userId = user.sub;
-    return this.ordersService.findOne(+id, userId);
+    const username = user.username;
+    return this.ordersService.findOne(+id, username);
   }
 
   @Get(':id')
   @Permissions('select-order')
   findOne(
     @Param('id') id: string,
-    @Query('userId') userId?: number
+    @Query('username') username?: string
   ) {
-    return this.ordersService.findOne(+id, userId);
+    return this.ordersService.findOne(+id, username);
   }
 }

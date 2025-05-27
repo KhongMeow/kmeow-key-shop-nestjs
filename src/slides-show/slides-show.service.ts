@@ -6,17 +6,22 @@ import { join } from 'path';
 import { SlidesShow } from './entities/slides-show.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GlobalService } from 'src/global/global.service';
 
 @Injectable()
 export class SlidesShowService {
   constructor(
     @InjectRepository(SlidesShow) private readonly slidesShowRepository: Repository<SlidesShow>,
+    private readonly globalService: GlobalService,
   ) {}
 
   async create(createSlidesShowDto: CreateSlidesShowDto, image: Express.Multer.File) {
     try {
+      await this.isExistSlideShow(createSlidesShowDto.title);
+      
       const slideShow = new SlidesShow();
       slideShow.title = createSlidesShowDto.title;
+      slideShow.slug = await this.globalService.convertToSlug(createSlidesShowDto.title);
 
       if (image) {
         const filePath = await this.uploadImage(image);
@@ -52,12 +57,12 @@ export class SlidesShowService {
     }
   }
 
-  async findOne(id: number): Promise<SlidesShow> {
+  async findOne(slug: string): Promise<SlidesShow> {
     try {
-      const slideShow = await this.slidesShowRepository.findOneBy({id});
+      const slideShow = await this.slidesShowRepository.findOneBy({slug});
 
       if (!slideShow) {
-        throw new NotFoundException(`SlideShow with id ${id} is not found`);
+        throw new NotFoundException(`SlideShow with slug ${slug} is not found`);
       }
 
       return slideShow;
@@ -66,9 +71,9 @@ export class SlidesShowService {
     }
   }
 
-  async update(id: number, updateSlidesShowDto: UpdateSlidesShowDto, image: Express.Multer.File): Promise<SlidesShow> {
+  async update(slug: string, updateSlidesShowDto: UpdateSlidesShowDto, image: Express.Multer.File): Promise<SlidesShow> {
     try {
-      const slideShow = await this.findOne(id);
+      const slideShow = await this.findOne(slug);
       slideShow.title = updateSlidesShowDto.title ?? slideShow.title;
 
       if (image) {
@@ -82,15 +87,15 @@ export class SlidesShowService {
     }
   }
 
-  async remove(id: number): Promise<{ status: number; message: string }> {
+  async remove(slug: string): Promise<{ status: number; message: string }> {
     try {
-      const slideShow = await this.findOne(id);
+      const slideShow = await this.findOne(slug);
 
-      await this.slidesShowRepository.softDelete(id);
+      await this.slidesShowRepository.softDelete(slideShow.id);
       return {
         status: 200,
-        message: `Slide show with id ${id} has been deleted`,
-      }
+        message: `Slide show with slug ${slug} has been deleted`,
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -115,6 +120,23 @@ export class SlidesShowService {
       await fs.writeFile(filePath, image.buffer);
 
       return filePath;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+  
+  async isExistSlideShow(title: string): Promise<void> {
+    try {
+      const slideShow = await this.slidesShowRepository.findOne({
+        where: [
+          { title },
+          { slug: await this.globalService.convertToSlug(title) }
+        ],
+      });
+
+      if (slideShow) {
+        throw new BadRequestException(`SlideShow with title or slug ${title} is already exist`);
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

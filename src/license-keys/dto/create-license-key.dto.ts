@@ -18,7 +18,5 @@ export class CreateLicenseKeyDto {
     required: true,
   })
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value))
-  @IsNumber()
-  productId: number;
+  productSlug: string;
 }
