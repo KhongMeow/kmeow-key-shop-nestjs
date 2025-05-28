@@ -107,19 +107,19 @@ export class SlidesShowService {
       if (image.size > maxSize) {
         throw new BadRequestException('Image size exceeds the maximum limit of 5 MB');
       }
-
+  
       if (!image.mimetype.match(/\/(jpg|jpeg|png)$/)) {
         throw new BadRequestException('Only image files are allowed! e.g. jpg, jpeg, png');
       }
-
-      const uploadDir = join(__dirname, '..', '..', 'images', 'slides-show');
+  
+      const uploadDir = join(__dirname, '..', '..', 'images', 'products');
       const timestamp = Date.now();
       const filePath = join(uploadDir, `${timestamp}-${image.originalname}`);
-
+  
       await fs.mkdir(uploadDir, { recursive: true });
       await fs.writeFile(filePath, image.buffer);
-
-      return filePath;
+  
+      return `/images/products/${timestamp}-${image.originalname}`;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
