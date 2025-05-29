@@ -100,7 +100,10 @@ export class ProductsService {
         const category = await this.categoriesService.findOne(updateProductDto.categorySlug);
         product.category = category;
       }
-      await this.isExistProduct(updateProductDto.name ?? product.name);
+
+      if (updateProductDto.name && updateProductDto.name !== product.name) {
+        await this.isExistProduct(updateProductDto.name);
+      }
 
       product.name = updateProductDto.name ?? product.name;
       product.slug = updateProductDto.name ? await this.globalService.convertToSlug(updateProductDto.name) : product.slug;
