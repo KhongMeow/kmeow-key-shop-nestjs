@@ -123,7 +123,7 @@ export class ProductsService {
   async remove(slug: string): Promise<{ status: number, message: string }> {
     try {
       const product = await this.findOne(slug);
-      await this.productsRepository.softDelete(slug);
+      await this.productsRepository.softDelete(product.id);
 
       return {
         status: 200,

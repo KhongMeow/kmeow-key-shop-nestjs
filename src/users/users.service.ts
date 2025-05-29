@@ -207,7 +207,7 @@ export class UsersService {
     try {
       const user = await this.findOne(username);
       
-      await this.usersRepository.softDelete(username);
+      await this.usersRepository.softDelete(user.id);
       if (user.balance) {
         await this.balancesService.remove(user.balance.slug);
       }

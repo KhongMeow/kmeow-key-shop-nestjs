@@ -86,7 +86,7 @@ export class CategoriesService {
     try {
       const category = await this.findOne(slug);
 
-      await this.categoriesRepository.softDelete(slug);
+      await this.categoriesRepository.softDelete(category.id);
 
       return {
         status: 200,

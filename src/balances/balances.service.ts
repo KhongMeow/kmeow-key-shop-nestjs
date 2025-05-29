@@ -112,7 +112,7 @@ export class BalancesService {
     try {
       const balance = await this.findOne(slug);
 
-      await this.balancesRepository.softDelete(slug);
+      await this.balancesRepository.softDelete(balance.id);
 
       return {
         statusCode: 200,

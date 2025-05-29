@@ -111,7 +111,7 @@ export class RolesService {
         throw new ConflictException(`This role was used by ${role.rolePermissions.length} role permission(s)`);
       }
 
-      await this.rolesReposotory.softDelete(slug);
+      await this.rolesReposotory.softDelete(role.id);
 
       return {
         status: 200,

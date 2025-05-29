@@ -179,7 +179,7 @@ export class LicenseKeysService {
   async remove(id: string): Promise<{ status: number; message: string }> {
     try {
       const licenseKey = await this.findOne(id);
-      await this.licenseKeysRepository.remove(licenseKey);
+      await this.licenseKeysRepository.softDelete(licenseKey.id);
 
       return { 
         status: 200,

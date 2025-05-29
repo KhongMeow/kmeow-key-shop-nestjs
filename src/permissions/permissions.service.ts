@@ -94,7 +94,7 @@ export class PermissionsService {
         throw new BadRequestException(`This permission was used by ${permission.rolePermissions.length} role permission(s)`)
       }
 
-      await this.permissionsRepository.softDelete(slug);
+      await this.permissionsRepository.softDelete(permission.id);
 
       return {
         status: 200,

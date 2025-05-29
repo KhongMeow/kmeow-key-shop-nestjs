@@ -110,7 +110,7 @@ export class RolePermissionsService {
   async remove(slug: string): Promise<{ status: number; message: string }> {
     try {
       const rolePermission = await this.findOne(slug);
-      await this.rolePermissionsRepository.softDelete(slug);
+      await this.rolePermissionsRepository.softDelete(rolePermission.id);
 
       return {
         status: 200,
