@@ -2,11 +2,12 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMan
 import { Order } from "./order.entity";
 import { Product } from "src/products/entities/product.entity";
 import { LicenseKey } from "src/license-keys/entities/license-key.entity";
+import { UUID } from "typeorm/driver/mongodb/bson.typings";
 
 @Entity()
 export class OrderItem {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ManyToOne(() => Order, (order) => order.orderItems)
   order: Order;

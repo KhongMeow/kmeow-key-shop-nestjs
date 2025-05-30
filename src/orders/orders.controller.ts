@@ -19,7 +19,7 @@ export class OrdersController {
   }
 
   @Post('confirm-payment')
-  confirmPayment(@Body() orderId: number, @ActiveUser() user: ActiveUserData) {
+  confirmPayment(@Body() orderId: string, @ActiveUser() user: ActiveUserData) {
     const username = user.username;
     return this.ordersService.confirmPayment(orderId, username);
   }
@@ -71,7 +71,7 @@ export class OrdersController {
     @ActiveUser() user: ActiveUserData
   ) {
     const username = user.username;
-    return this.ordersService.findOne(+id, username);
+    return this.ordersService.findOne(id, username);
   }
 
   @Get(':id')
@@ -80,6 +80,6 @@ export class OrdersController {
     @Param('id') id: string,
     @Query('username') username?: string
   ) {
-    return this.ordersService.findOne(+id, username);
+    return this.ordersService.findOne(id, username);
   }
 }

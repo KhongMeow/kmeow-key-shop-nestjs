@@ -5,7 +5,7 @@ import { IsNotEmpty, IsNumber } from "class-validator";
 export class CreateOrderItemDto {
   @ApiProperty({
     example: 1,
-    description: 'The product ID',
+    description: 'The product slug',
     required: true,
   })
   @IsNotEmpty()

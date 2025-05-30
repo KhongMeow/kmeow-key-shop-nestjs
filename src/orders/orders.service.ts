@@ -78,7 +78,7 @@ export class OrdersService {
     }
   }
   
-  async waitingPayment(orderId: number): Promise<void> {
+  async waitingPayment(orderId: string): Promise<void> {
     try {
       const order = await this.findOne(orderId);
       if (order.status === 'Waiting Payment') {
@@ -97,7 +97,7 @@ export class OrdersService {
     }
   }
 
-  async confirmPayment(orderId: number, username: string) {
+  async confirmPayment(orderId: string, username: string) {
     try {
       const order = await this.findOne(orderId);
       const user = await this.usersService.findOne(username);
@@ -223,7 +223,7 @@ export class OrdersService {
     }
   }
 
-  async findOne(id: number, username?: string): Promise<Order> {
+  async findOne(id: string, username?: string): Promise<Order> {
     try {
       const user = username ? await this.usersService.findOne(username) : undefined;
 
@@ -249,7 +249,7 @@ export class OrdersService {
     }
   }
 
-  async findOneOrderItem(id: number): Promise<OrderItem> {
+  async findOneOrderItem(id: string): Promise<OrderItem> {
     try {
       const orderItem = await this.orderItemsRepository.findOne({
         where: { id },
@@ -266,7 +266,7 @@ export class OrdersService {
     }
   }
 
-  async changeStatus(id: number, status: string): Promise<void> {
+  async changeStatus(id: string, status: string): Promise<void> {
     try {
       const order = await this.findOne(id);
       order.status = status;

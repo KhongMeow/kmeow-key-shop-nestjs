@@ -84,7 +84,7 @@ export class LicenseKeysService {
     }
   }
 
-  async makeOrderdLicenseKey(licenseKeyId: string, orderItemId: number) {
+  async makeOrderdLicenseKey(licenseKeyId: string, orderItemId: string) {
     try {
       const orderItem = await this.ordersService.findOneOrderItem(orderItemId);
       const licenseKey = await this.findOne(licenseKeyId);
