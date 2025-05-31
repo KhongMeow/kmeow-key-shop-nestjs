@@ -101,7 +101,14 @@ export class RolesService {
 
   async remove(slug: string): Promise<{ status: number, message: string }> {
     try {
-      const role = await this.findOne(slug);
+      const role = await this.rolesReposotory.findOne({ 
+        where: { slug },
+        relations: ['users', 'rolePermissions']
+      });
+
+      if (!role) {
+        throw new NotFoundException(`Role with slug ${slug} is not found`);
+      }
 
       if(role.users.length > 0) {
         throw new ConflictException(`This role was used by ${role.users.length} user(s)`);

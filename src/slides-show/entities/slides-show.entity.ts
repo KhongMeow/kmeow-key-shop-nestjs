@@ -8,7 +8,7 @@ export class SlidesShow {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ unique: true })
   slug: string;
 
   @Column()

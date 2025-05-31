@@ -125,7 +125,19 @@ export class ProductsService {
 
   async remove(slug: string): Promise<{ status: number, message: string }> {
     try {
-      const product = await this.findOne(slug);
+      const product = await this.productsRepository.findOne({
+        where: { slug },
+        relations: ['licenseKeys'],
+      });
+
+      if (!product) {
+        throw new NotFoundException(`Product with slug ${slug} is not found`);
+      }
+
+      if (product.licenseKeys.length > 0) {
+        throw new BadRequestException(`This product was used by ${product.licenseKeys.length} license key(s)`);
+      }
+
       await this.productsRepository.softDelete(product.id);
 
       return {

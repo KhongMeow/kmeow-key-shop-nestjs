@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateLicenseKeyDto {
   @ApiProperty({
@@ -14,7 +13,7 @@ export class CreateLicenseKeyDto {
 
   @ApiProperty({
     example: 1,
-    description: 'The product ID',
+    description: 'The product slug',
     required: true,
   })
   @IsNotEmpty()

@@ -84,7 +84,18 @@ export class CategoriesService {
 
   async remove(slug: string): Promise<{ status: number; message: string }> {
     try {
-      const category = await this.findOne(slug);
+      const category =  await this.categoriesRepository.findOne({ 
+        where: { slug },
+        relations: ['products']
+      });
+
+      if (!category) {
+        throw new BadRequestException(`Category with slug ${slug} is not found`);
+      }
+
+      if (category.products.length > 0) {
+        throw new BadRequestException(`This category was used by ${category.products.length} product(s)`)
+      }
 
       await this.categoriesRepository.softDelete(category.id);
 

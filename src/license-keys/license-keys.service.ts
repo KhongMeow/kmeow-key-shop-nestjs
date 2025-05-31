@@ -179,12 +179,17 @@ export class LicenseKeysService {
   async remove(id: string): Promise<{ status: number; message: string }> {
     try {
       const licenseKey = await this.findOne(id);
-      await this.licenseKeysRepository.softDelete(licenseKey.id);
 
-      return { 
-        status: 200,
-        message: `License key with id ${id} has been deleted`
-      };
+      if (licenseKey.status === 'Active') {
+        await this.licenseKeysRepository.softDelete(licenseKey.id);
+
+        return { 
+          status: 200,
+          message: `License key with id ${id} has been deleted`
+        };
+      }
+
+      throw new InternalServerErrorException(`License key with id ${id} can not be deleted because it is not active`);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

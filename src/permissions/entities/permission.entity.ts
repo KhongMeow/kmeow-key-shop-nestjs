@@ -9,7 +9,7 @@ export class Permission {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ unique: true })
   slug: string;
 
   @OneToMany(() => RolePermission, rolePermission => rolePermission.permission)

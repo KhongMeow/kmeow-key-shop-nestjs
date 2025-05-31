@@ -10,7 +10,7 @@ export class Role {
   @Column()
   name: string;
   
-  @Column()
+  @Column({ unique: true })
   slug: string;
 
   @OneToMany(() => User, user => user.role)

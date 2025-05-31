@@ -7,13 +7,13 @@ export class RolePermission {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   slug: string;
 
-  @ManyToOne(() => Role, role => role.slug)
+  @ManyToOne(() => Role, role => role.id)
   role: Role;
 
-  @ManyToOne(() => Permission, permission => permission.slug)
+  @ManyToOne(() => Permission, permission => permission.id)
   permission: Permission;
 
   @CreateDateColumn()
