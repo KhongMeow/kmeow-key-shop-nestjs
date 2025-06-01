@@ -7,6 +7,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 import { ApiQuery } from '@nestjs/swagger';
+import { ImportProductsDto } from './dto/import-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -20,6 +21,16 @@ export class ProductsController {
       throw new BadRequestException('Image is required');
     }
     return this.productsService.create(createProductDto, image);
+  }
+
+  @Post('/import')
+  @Permissions('create-product')
+  @UseInterceptors(FileInterceptor('image'))
+  import(@Body() importProductDto: ImportProductsDto, @UploadedFile() images: Express.Multer.File[]) {
+    if (!images || images.length === 0) {
+      throw new BadRequestException('Images are required');
+    }
+    return this.productsService.import(importProductDto, images);
   }
 
   @Get()

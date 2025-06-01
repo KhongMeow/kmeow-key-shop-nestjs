@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { join } from 'path';
 import { promises as fs } from 'fs';
-import { Category } from 'src/categories/entities/category.entity';
 import { GlobalService } from 'src/global/global.service';
+import { ImportProductsDto } from './dto/import-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -39,6 +39,66 @@ export class ProductsService {
       } else {
         throw new BadRequestException('Image is required');
       }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async import(importProductsDto: ImportProductsDto, images?: Express.Multer.File[]): Promise<Product[]> {
+    try {
+      if (
+        !importProductsDto.name?.length ||
+        !importProductsDto.categorySlug?.length ||
+        importProductsDto.name.length !== importProductsDto.categorySlug.length
+      ) {
+        throw new InternalServerErrorException('Invalid products data');
+      }
+
+      const products: Product[] = [];
+      const duplicates: string[] = [];
+
+      for (let i = 0; i < importProductsDto.name.length; i++) {
+        const name = importProductsDto.name[i];
+        const categorySlug = importProductsDto.categorySlug[i];
+
+        const exist = await this.productsRepository.findOne({
+          where: [
+            { name },
+            { slug: await this.globalService.convertToSlug(name) }
+          ],
+        });
+        if (exist) {
+          duplicates.push(name);
+          continue;
+        }
+
+        const category = await this.categoriesService.findOne(categorySlug);
+        const product = new Product();
+        product.name = name;
+        product.slug = await this.globalService.convertToSlug(name);
+        product.price = importProductsDto.price?.[i] ?? 0;
+        product.detail = importProductsDto.detail?.[i] ?? '';
+        product.description = importProductsDto.description?.[i] ?? '';
+        product.category = category;
+
+        // Handle image upload if images are provided
+        if (images && images[i]) {
+          const filePath = await this.uploadImage(images[i]);
+          product.image = filePath;
+        }
+
+        products.push(product);
+      }
+
+      if (products.length) {
+        await this.productsRepository.save(products);
+      }
+
+      if (duplicates.length) {
+        throw new InternalServerErrorException(`Some products are duplicates: ${duplicates.join(', ')}`);
+      }
+
+      return products;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
