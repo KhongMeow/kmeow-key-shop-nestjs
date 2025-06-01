@@ -32,24 +32,49 @@ export class LicenseKeysService {
     }
   }
 
-  async import(importLicenseKeyDto: ImportLicenseKeysDto): Promise<LicenseKey[]> {
+  async import(importLicenseKeyDto: ImportLicenseKeysDto): Promise<{ imported: LicenseKey[]; error?: string; duplicates?: string[] }> {
     try {
-      if (!importLicenseKeyDto.key?.length || !importLicenseKeyDto.productSlug?.length || importLicenseKeyDto.key.length !== importLicenseKeyDto.productSlug.length) {
+      if (
+        !importLicenseKeyDto.key?.length ||
+        !importLicenseKeyDto.productSlug?.length ||
+        importLicenseKeyDto.key.length !== importLicenseKeyDto.productSlug.length
+      ) {
         throw new InternalServerErrorException('Invalid license keys data');
       }
 
       const licenseKeys: LicenseKey[] = [];
+      const duplicates: string[] = [];
+
       for (let i = 0; i < importLicenseKeyDto.key.length; i++) {
-        const product = await this.productsService.findOne(importLicenseKeyDto.productSlug[i]);
+        const key = importLicenseKeyDto.key[i];
+        const productSlug = importLicenseKeyDto.productSlug[i];
+
+        const exist = await this.licenseKeysRepository.findOneBy({ key });
+        if (exist) {
+          duplicates.push(key);
+          continue;
+        }
+
+        const product = await this.productsService.findOne(productSlug);
         const licenseKey = new LicenseKey();
-        licenseKey.key = importLicenseKeyDto.key[i];
-        await this.isExistLicenseKey(importLicenseKeyDto.key[i]);
+        licenseKey.key = key;
         licenseKey.product = product;
         licenseKeys.push(licenseKey);
       }
 
-      await this.licenseKeysRepository.save(licenseKeys);
-      return licenseKeys;
+      if (licenseKeys.length) {
+        await this.licenseKeysRepository.save(licenseKeys);
+      }
+
+      if (duplicates.length) {
+        return {
+          imported: licenseKeys,
+          error: 'Some license keys are duplicates and were not imported.',
+          duplicates,
+        };
+      }
+
+      return { imported: licenseKeys };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
