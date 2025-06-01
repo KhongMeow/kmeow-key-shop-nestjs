@@ -67,11 +67,7 @@ export class LicenseKeysService {
       }
 
       if (duplicates.length) {
-        return {
-          imported: licenseKeys,
-          error: 'Some license keys are duplicates and were not imported.',
-          duplicates,
-        };
+        throw new InternalServerErrorException(`Some license keys are duplicates: ${duplicates.join(', ')}`);
       }
 
       return { imported: licenseKeys };
