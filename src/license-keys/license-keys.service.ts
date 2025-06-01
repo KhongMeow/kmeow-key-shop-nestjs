@@ -34,8 +34,6 @@ export class LicenseKeysService {
 
   async import(importLicenseKeyDto: ImportLicenseKeysDto): Promise<LicenseKey[]> {
     try {
-      console.log('Importing license keys:', importLicenseKeyDto);
-
       if (!importLicenseKeyDto.key?.length || !importLicenseKeyDto.productSlug?.length || importLicenseKeyDto.key.length !== importLicenseKeyDto.productSlug.length) {
         throw new InternalServerErrorException('Invalid license keys data');
       }
@@ -45,6 +43,7 @@ export class LicenseKeysService {
         const product = await this.productsService.findOne(importLicenseKeyDto.productSlug[i]);
         const licenseKey = new LicenseKey();
         licenseKey.key = importLicenseKeyDto.key[i];
+        await this.isExistLicenseKey(importLicenseKeyDto.key[i]);
         licenseKey.product = product;
         licenseKeys.push(licenseKey);
       }
