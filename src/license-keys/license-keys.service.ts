@@ -32,7 +32,7 @@ export class LicenseKeysService {
     }
   }
 
-  async import(importLicenseKeyDto: ImportLicenseKeysDto): Promise<{ imported: LicenseKey[]; error?: string; duplicates?: string[] }> {
+  async import(importLicenseKeyDto: ImportLicenseKeysDto): Promise<LicenseKey[]> {
     try {
       if (
         !importLicenseKeyDto.key?.length ||
@@ -70,7 +70,7 @@ export class LicenseKeysService {
         throw new InternalServerErrorException(`Some license keys are duplicates: ${duplicates.join(', ')}`);
       }
 
-      return { imported: licenseKeys };
+      return licenseKeys;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
