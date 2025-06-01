@@ -5,6 +5,7 @@ import { UpdateLicenseKeyDto } from './dto/update-license-key.dto';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ImportLicenseKeysDto } from './dto/import-license-key.dto';
 
 @ApiBearerAuth('access-token')
 @Controller('license-keys')
@@ -16,6 +17,13 @@ export class LicenseKeysController {
   @UseInterceptors(FileInterceptor(''))
   create(@Body() createLicenseKeyDto: CreateLicenseKeyDto) {
     return this.licenseKeysService.create(createLicenseKeyDto);
+  }
+
+  @Post('import')
+  @Permissions('create-license-key')
+  @UseInterceptors(FileInterceptor(''))
+  import(@Body() importLicenseKeyDto: ImportLicenseKeysDto) {
+    return this.licenseKeysService.import(importLicenseKeyDto);
   }
 
   @Get()

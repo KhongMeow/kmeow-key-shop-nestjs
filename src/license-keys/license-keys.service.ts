@@ -6,6 +6,7 @@ import { LicenseKey } from './entities/license-key.entity';
 import { Repository } from 'typeorm';
 import { ProductsService } from 'src/products/products.service';
 import { OrdersService } from 'src/orders/orders.service';
+import { ImportLicenseKeysDto } from './dto/import-license-key.dto';
 
 @Injectable()
 export class LicenseKeysService {
@@ -28,6 +29,30 @@ export class LicenseKeysService {
       return await this.licenseKeysRepository.save(licenseKey);
     } catch (error) {
       throw new InternalServerErrorException(error.massage);
+    }
+  }
+
+  async import(importLicenseKeyDto: ImportLicenseKeysDto): Promise<LicenseKey[]> {
+    try {
+      console.log('Importing license keys:', importLicenseKeyDto);
+
+      if (!importLicenseKeyDto.key?.length || !importLicenseKeyDto.productSlug?.length || importLicenseKeyDto.key.length !== importLicenseKeyDto.productSlug.length) {
+        throw new InternalServerErrorException('Invalid license keys data');
+      }
+
+      const licenseKeys: LicenseKey[] = [];
+      for (let i = 0; i < importLicenseKeyDto.key.length; i++) {
+        const product = await this.productsService.findOne(importLicenseKeyDto.productSlug[i]);
+        const licenseKey = new LicenseKey();
+        licenseKey.key = importLicenseKeyDto.key[i];
+        licenseKey.product = product;
+        licenseKeys.push(licenseKey);
+      }
+
+      await this.licenseKeysRepository.save(licenseKeys);
+      return licenseKeys;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
     }
   }
 
