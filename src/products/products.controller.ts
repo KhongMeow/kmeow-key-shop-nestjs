@@ -27,9 +27,8 @@ export class ProductsController {
   @Post('import')
   async import(
     @Body() importProductsDto: ImportProductsDto,
-    @UploadedFiles() image: Express.Multer.File[],
   ) {
-    return this.productsService.import(importProductsDto, image);
+    return this.productsService.import(importProductsDto);
   }
 
   @Get()

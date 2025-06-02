@@ -1,3 +1,4 @@
+import { readFile } from 'fs/promises';
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -44,24 +45,17 @@ export class ProductsService {
     }
   }
 
-  async import(importProductsDto: ImportProductsDto, images?: Express.Multer.File[]): Promise<Product[]> {
-    console.log(importProductsDto);
-    
+  async import(importProductsDto: ImportProductsDto): Promise<Product[]> {
     try {
-      if (
-        !importProductsDto.name?.length ||
-        !importProductsDto.categorySlug?.length ||
-        importProductsDto.name.length !== importProductsDto.categorySlug.length
-      ) {
-        throw new InternalServerErrorException('Invalid products data');
+      if (!importProductsDto.products?.length) {
+        throw new InternalServerErrorException('No products data');
       }
 
       const products: Product[] = [];
       const duplicates: string[] = [];
 
-      for (let i = 0; i < importProductsDto.name.length; i++) {
-        const name = importProductsDto.name[i];
-        const categorySlug = importProductsDto.categorySlug[i];
+      for (const item of importProductsDto.products) {
+        const { name, category, detail, description, price, image } = item;
 
         const exist = await this.productsRepository.findOne({
           where: [
@@ -74,19 +68,38 @@ export class ProductsService {
           continue;
         }
 
-        const category = await this.categoriesService.findOne(categorySlug);
+        const categoryEntity = await this.categoriesService.findOne(String(category));
+
         const product = new Product();
         product.name = name;
         product.slug = await this.globalService.convertToSlug(name);
-        product.price = importProductsDto.price?.[i] ?? 0;
-        product.detail = importProductsDto.detail?.[i] ?? '';
-        product.description = importProductsDto.description?.[i] ?? '';
-        product.category = category;
+        product.price = price ?? 0;
+        product.detail = detail ?? '';
+        product.description = description ?? '';
+        product.category = categoryEntity;
 
-        // Handle image upload if images are provided
-        if (images && images[i]) {
-          const filePath = await this.uploadImage(images[i]);
-          product.image = filePath;
+        // If image is a file path, read and upload it
+        if (image) {
+          try {
+            const buffer = await readFile(image);
+            const fakeFile: Express.Multer.File = {
+              fieldname: 'image',
+              originalname: image.split('/').pop() || 'image.jpg',
+              encoding: '7bit',
+              mimetype: 'image/jpeg', // or detect from file extension
+              size: buffer.length,
+              buffer,
+              destination: '',
+              filename: '',
+              path: image,
+              stream: null,
+            } as any;
+            const filePath = await this.uploadImage(fakeFile);
+            product.image = filePath;
+          } catch (e) {
+            // If file not found or error, skip image
+            product.image = '';
+          }
         }
 
         products.push(product);
