@@ -9,7 +9,7 @@ export class ImportProductsDto {
     required: true,
   })
   @IsNotEmpty()
-  @IsString()
+  @IsString({ each: true })
   name: string[];
 
   @ApiProperty({
@@ -18,7 +18,7 @@ export class ImportProductsDto {
     required: true,
   })
   @IsNotEmpty()
-  @IsString()
+  @IsString({ each: true })
   detail: string[];
 
   @ApiProperty({
@@ -27,7 +27,7 @@ export class ImportProductsDto {
     required: true,
   })
   @IsNotEmpty()
-  @IsString()
+  @IsString({ each: true })
   description: string[];
 
   @ApiProperty({
@@ -47,5 +47,6 @@ export class ImportProductsDto {
     required: true,
   })
   @IsNotEmpty()
+  @IsString({ each: true })
   categorySlug: string[];
 }

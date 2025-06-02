@@ -45,6 +45,8 @@ export class ProductsService {
   }
 
   async import(importProductsDto: ImportProductsDto, images?: Express.Multer.File[]): Promise<Product[]> {
+    console.log(importProductsDto);
+    
     try {
       if (
         !importProductsDto.name?.length ||

@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, BadRequestException, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, BadRequestException, UploadedFile, UploadedFiles } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 import { ApiQuery } from '@nestjs/swagger';
@@ -23,14 +23,13 @@ export class ProductsController {
     return this.productsService.create(createProductDto, image);
   }
 
-  @Post('/import')
-  @Permissions('create-product')
-  @UseInterceptors(FileInterceptor('image'))
-  import(@Body() importProductDto: ImportProductsDto, @UploadedFile() images: Express.Multer.File[]) {
-    if (!images || images.length === 0) {
-      throw new BadRequestException('Images are required');
-    }
-    return this.productsService.import(importProductDto, images);
+  @UseInterceptors(FilesInterceptor('images'))
+  @Post('import')
+  async import(
+    @Body() importProductsDto: ImportProductsDto,
+    @UploadedFiles() image: Express.Multer.File[],
+  ) {
+    return this.productsService.import(importProductsDto, image);
   }
 
   @Get()
