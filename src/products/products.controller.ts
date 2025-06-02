@@ -23,7 +23,6 @@ export class ProductsController {
     return this.productsService.create(createProductDto, image);
   }
 
-  @UseInterceptors(FilesInterceptor('images'))
   @Post('import')
   async import(
     @Body() importProductsDto: ImportProductsDto,
