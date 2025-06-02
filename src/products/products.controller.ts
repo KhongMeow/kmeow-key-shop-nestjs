@@ -1,13 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, BadRequestException, UploadedFile, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, BadRequestException, UploadedFile } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Permissions } from 'src/identity/authorization/decorators/permissions.decorator';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
 import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 import { ApiQuery } from '@nestjs/swagger';
-import { ImportProductsDto } from './dto/import-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -21,13 +20,6 @@ export class ProductsController {
       throw new BadRequestException('Image is required');
     }
     return this.productsService.create(createProductDto, image);
-  }
-
-  @Post('import')
-  async import(
-    @Body() importProductsDto: ImportProductsDto,
-  ) {
-    return this.productsService.import(importProductsDto);
   }
 
   @Get()

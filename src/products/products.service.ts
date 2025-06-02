@@ -1,4 +1,3 @@
-import { readFile } from 'fs/promises';
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -9,7 +8,6 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { join } from 'path';
 import { promises as fs } from 'fs';
 import { GlobalService } from 'src/global/global.service';
-import { ImportProductsDto } from './dto/import-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -40,80 +38,6 @@ export class ProductsService {
       } else {
         throw new BadRequestException('Image is required');
       }
-    } catch (error) {
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
-  async import(importProductsDto: ImportProductsDto): Promise<Product[]> {
-    try {
-      if (!importProductsDto.products?.length) {
-        throw new InternalServerErrorException('No products data');
-      }
-
-      const products: Product[] = [];
-      const duplicates: string[] = [];
-
-      for (const item of importProductsDto.products) {
-        const { name, category, detail, description, price, image } = item;
-
-        const exist = await this.productsRepository.findOne({
-          where: [
-            { name },
-            { slug: await this.globalService.convertToSlug(name) }
-          ],
-        });
-        if (exist) {
-          duplicates.push(name);
-          continue;
-        }
-
-        const categoryEntity = await this.categoriesService.findOne(String(category));
-
-        const product = new Product();
-        product.name = name;
-        product.slug = await this.globalService.convertToSlug(name);
-        product.price = price ?? 0;
-        product.detail = detail ?? '';
-        product.description = description ?? '';
-        product.category = categoryEntity;
-
-        // If image is a file path, read and upload it
-        if (image) {
-          try {
-            const buffer = await readFile(image);
-            const fakeFile: Express.Multer.File = {
-              fieldname: 'image',
-              originalname: image.split('/').pop() || 'image.jpg',
-              encoding: '7bit',
-              mimetype: 'image/jpeg', // or detect from file extension
-              size: buffer.length,
-              buffer,
-              destination: '',
-              filename: '',
-              path: image,
-              stream: null,
-            } as any;
-            const filePath = await this.uploadImage(fakeFile);
-            product.image = filePath;
-          } catch (e) {
-            // If file not found or error, skip image
-            product.image = '';
-          }
-        }
-
-        products.push(product);
-      }
-
-      if (products.length) {
-        await this.productsRepository.save(products);
-      }
-
-      if (duplicates.length) {
-        throw new InternalServerErrorException(`Some products are duplicates: ${duplicates.join(', ')}`);
-      }
-
-      return products;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
