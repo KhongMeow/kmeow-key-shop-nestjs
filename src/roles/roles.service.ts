@@ -37,7 +37,8 @@ export class RolesService {
         take,
         order: {
           [order ? order : 'id']: direction ? direction : 'ASC',
-        }
+        },
+        relations: ['rolePermissions.permission'],
       });
 
       if (roles.length === 0) {
