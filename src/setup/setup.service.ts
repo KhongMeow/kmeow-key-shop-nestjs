@@ -38,7 +38,7 @@ export class SetupService {
   private async createDefaultPermissions() {
     const defaultPermissions: CreatePermissionDto[] = [
       { name: 'Access Dashboard' },
-      { name: 'Access User Settings' },
+      { name: 'Access Users Setting' },
       { name: 'Create Role' },
       { name: 'List Roles' },
       { name: 'Select Role' },
