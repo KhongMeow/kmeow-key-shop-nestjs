@@ -9,7 +9,7 @@ export class Category {
   @Column()
   name: string;
 
-  @Column({ unique: true })
+  @Column()
   slug: string;
 
   @OneToMany(() => Product, product => product.category)

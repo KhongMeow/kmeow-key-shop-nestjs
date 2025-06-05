@@ -7,7 +7,7 @@ export class RolePermission {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column()
   slug: string;
 
   @ManyToOne(() => Role, role => role.id)

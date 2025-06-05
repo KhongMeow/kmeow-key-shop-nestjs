@@ -12,7 +12,7 @@ export class Product {
   @Column()
   name: string;
 
-  @Column({ unique: true })
+  @Column()
   slug: string;
 
   @Column()
