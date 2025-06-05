@@ -124,7 +124,10 @@ export class RolePermissionsService {
   private async isExistRolePermission(role: Role, permission: Permission) {
     try {
       const isExist = await this.rolePermissionsRepository.findOne({
-        where: [ { role }, { permission } ],
+        where: {
+          role: { id: role.id },
+          permission: { id: permission.id },
+        },
       });
 
       if (isExist) {
