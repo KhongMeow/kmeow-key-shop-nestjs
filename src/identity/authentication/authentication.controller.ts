@@ -40,7 +40,7 @@ export class AuthenticationController {
   @Post('sign-out/:username')
   @Auth(AuthType.Bearer)
   @ApiBearerAuth('access-token')
-  @Permissions('sign-out-user')
+  @Permissions('change-role-user')
   @UseInterceptors(FileInterceptor(''))
   async signOut(@Param('username') username: string) {
     return await this.authService.signOut(username);

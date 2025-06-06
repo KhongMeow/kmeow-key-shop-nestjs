@@ -59,7 +59,6 @@ export class SetupService {
       { name: 'Select User' },
       { name: 'Change Role User' },
       { name: 'Reset Password User' },
-      { name: 'Sign Out User' },
       { name: 'Delete User' },
       { name: 'Create Slide Show' },
       { name: 'Update Slide Show' },
