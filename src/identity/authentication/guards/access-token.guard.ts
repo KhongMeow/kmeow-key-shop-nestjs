@@ -22,7 +22,7 @@ export class AccessTokenGuard implements CanActivate {
     });
   }
 
-  async canActivate(context: ExecutionContext,): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
@@ -33,6 +33,14 @@ export class AccessTokenGuard implements CanActivate {
         token,
         this.jwtConfiguration,
       );
+
+      // Check accessTokenId in Redis
+      const userId = payload.sub;
+      const accessTokenId = payload.accessTokenId;
+      const validAccessTokenId = await this.redis.get(`accessTokenId:${userId}`);
+      if (!accessTokenId || accessTokenId !== validAccessTokenId) {
+        throw new UnauthorizedException('Access token is invalidated');
+      }
 
       request[REQUEST_USER_KEY] = payload;
     } catch (error) {

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -6,11 +6,10 @@ import { SignInDto } from './dto/sign-in.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthType } from './enums/auth-type.enum';
 import { Auth } from './decorators/auth.decorator';
-import { AuthenticationGuard } from './guards/authentication.guard';
-import { ActiveUserData } from '../interfaces/active-user-data.interface';
-import { ActiveUser } from '../decorators/active-user.decorator';
 import { SendVerifyEmailDto } from './dto/send-verify-email.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { Permissions } from '../authorization/decorators/permissions.decorator';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Auth(AuthType.None)
 @Controller('authentication')
@@ -38,13 +37,13 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('sign-out')
+  @Post('sign-out/:username')
   @Auth(AuthType.Bearer)
-  @UseGuards(AuthenticationGuard)
+  @ApiBearerAuth('access-token')
+  @Permissions('sign-out-user')
   @UseInterceptors(FileInterceptor(''))
-  async signOut(@ActiveUser() user: ActiveUserData) {
-    const userId = user['sub'];
-    return await this.authService.signOut(userId);
+  async signOut(@Param('username') username: string) {
+    return await this.authService.signOut(username);
   }
 
   @Post('send-verification-email')

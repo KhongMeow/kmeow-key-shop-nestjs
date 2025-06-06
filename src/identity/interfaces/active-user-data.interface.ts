@@ -5,4 +5,5 @@ export interface ActiveUserData {
   username: string;
   email: string;
   role: Role;
+  accessTokenId?: string;
 }

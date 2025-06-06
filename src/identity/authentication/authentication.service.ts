@@ -140,12 +140,17 @@ export class AuthenticationService {
     }
   }
 
-  async signOut(userId: number) {
+  async signOut(username: string) {
     try {
-      const isTokenValid = await this.refreshTokenIdsStorage.isTokenValid(userId);
+      const user = await this.usersService.findOne(username);
+
+      const isTokenValid = await this.refreshTokenIdsStorage.isTokenValid(user.id);
 
       if (isTokenValid) {
-        await this.refreshTokenIdsStorage.invalidate(userId);
+        await Promise.all([
+          this.refreshTokenIdsStorage.invalidate(user.id),
+          this.redis.del(`accessTokenId:${user.id}`),
+        ]);
 
         return { 
           status: 200,
@@ -161,11 +166,14 @@ export class AuthenticationService {
 
   private async generateTokens(user: User) {
     const refreshTokenId = randomUUID();
+    const accessTokenId = randomUUID();
+
     const [accessToken, refreshToken] = await Promise.all([
       this.signToken<Partial<ActiveUserData>>(
         user.id,
         this.jwtConfiguration.accessTokenTtl,
         {
+          accessTokenId,
           email: user.email,
           username: user.username,
           role: user.role,
@@ -176,13 +184,16 @@ export class AuthenticationService {
       }),
     ]);
 
-    await this.refreshTokenIdsStorage.insert(user.id, refreshTokenId);
+    await Promise.all([
+      this.refreshTokenIdsStorage.insert(user.id, refreshTokenId),
+      this.redis.set(`accessTokenId:${user.id}`, accessTokenId, 'EX', this.jwtConfiguration.accessTokenTtl),
+    ]);
     
     return {
       accessToken,
       refreshToken
     };
-  }
+}
 
   async refreshTokens(refreshTokenDto: RefreshTokenDto) {
     try {
