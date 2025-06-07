@@ -9,8 +9,6 @@ export class CreateOrderItemDto {
     required: true,
   })
   @IsNotEmpty()
-  @Transform(({ value }) => parseInt(value))
-  @IsNumber()
   productSlug: string;
 
   @ApiProperty({
