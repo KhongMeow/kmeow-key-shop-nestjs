@@ -22,13 +22,13 @@ export class Order {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   paidAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   deliveredAt: Date;
 
-  @Column()
+  @Column({ nullable: true })
   cancelledAt: Date;
 
   @UpdateDateColumn()
