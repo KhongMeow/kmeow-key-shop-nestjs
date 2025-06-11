@@ -53,7 +53,7 @@ export class ProductsService {
       const qb = this.productsRepository.createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category')
         .leftJoin('product.licenseKeys', 'licenseKey', 'licenseKey.status = :status', { status: 'Active' })
-        .addSelect('COUNT(licenseKey.id)', 'active')
+        .addSelect('COUNT(licenseKey.id)', 'stock')
         .groupBy('product.id')
         .addGroupBy('category.id')
         .orderBy(`product.${order || 'id'}`, direction?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC');
@@ -68,7 +68,7 @@ export class ProductsService {
 
       return entities.map((product, idx) => ({
         ...product,
-        active: parseInt(raw[idx].active, 10),
+        stock: parseInt(raw[idx].stock, 10),
       }));
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -81,7 +81,7 @@ export class ProductsService {
         .leftJoinAndSelect('product.category', 'category')
         .leftJoinAndSelect('product.ratings', 'ratings')
         .leftJoin('product.licenseKeys', 'licenseKey', 'licenseKey.status = :status', { status: 'Active' })
-        .addSelect('COUNT(licenseKey.id)', 'active')
+        .addSelect('COUNT(licenseKey.id)', 'stock')
         .where('product.slug = :slug', { slug })
         .groupBy('product.id')
         .addGroupBy('category.id')
@@ -96,7 +96,7 @@ export class ProductsService {
 
       return {
         ...product,
-        active: parseInt(result.raw[0]?.active ?? '0', 10),
+        stock: parseInt(result.raw[0]?.stock ?? '0', 10),
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
