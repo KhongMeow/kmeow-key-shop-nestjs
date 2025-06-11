@@ -90,7 +90,7 @@ export class OrdersService {
       }
 
       await this.changeStatus(order.id, 'Waiting Payment');
-      await this.redisClient.set(`waitingPayment:${order.id}`, 'waiting', 'EX', 86400);
+      await this.redisClient.set(`waitingPayment:${order.id}`, 'waiting', 'EX', 10);
 
       return order;
     } catch (error) {
