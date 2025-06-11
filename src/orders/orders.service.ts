@@ -34,6 +34,26 @@ export class OrdersService {
       port: this.configService.get('REDIS_PORT'),
       password: this.configService.get("REDIS_PASS")
     });
+
+    // Subscribe to Redis key expiration events for waitingPayment
+    const sub = new Redis({
+      host: this.configService.get('REDIS_HOST'),
+      port: this.configService.get('REDIS_PORT'),
+      password: this.configService.get("REDIS_PASS")
+    });
+
+    sub.psubscribe('__keyevent@0__:expired', (err, count) => {
+      if (err) {
+        console.error('Failed to subscribe to Redis key expiration events:', err);
+      }
+    });
+
+    sub.on('pmessage', async (pattern, channel, message) => {
+      if (message.startsWith('waitingPayment:')) {
+        const orderId = message.split(':')[1];
+        await this.waitingPayment(orderId);
+      }
+    });
   }
 
   async create(createOrderDto: CreateOrderDto, username: string): Promise<Order> {
