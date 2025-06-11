@@ -43,45 +43,61 @@ export class ProductsService {
     }
   }
 
-  async findAll(categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<Product[]> {
+  async findAll(categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<any[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
 
       const category = categorySlug ? await this.categoriesService.findOne(categorySlug) : undefined;
 
-      const products = await this.productsRepository.find({
-        relations: ['category'],
-        where: category ? { category: { id: category.id } } : {},
-        skip,
-        take,
-        order: {
-          [order || 'id']: direction || 'ASC',
-        },
-      });
+      const qb = this.productsRepository.createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoin('product.licenseKeys', 'licenseKey', 'licenseKey.status = :status', { status: 'Active' })
+        .addSelect('COUNT(licenseKey.id)', 'activeLicenseKeyCount')
+        .groupBy('product.id')
+        .addGroupBy('category.id')
+        .orderBy(`product.${order || 'id'}`, direction?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC');
 
-      if (products.length === 0) {
-        throw new NotFoundException('Products is empty');
+      if (category) {
+        qb.where('product.category = :categoryId', { categoryId: category.id });
       }
+      if (skip !== undefined) qb.skip(skip);
+      if (take !== undefined) qb.take(take);
 
-      return products;
+      const { entities, raw } = await qb.getRawAndEntities();
+
+      return entities.map((product, idx) => ({
+        ...product,
+        activeLicenseKeyCount: parseInt(raw[idx].activeLicenseKeyCount, 10),
+      }));
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async findOne(slug: string): Promise<Product> {
+  async findOne(slug: string): Promise<any> {
     try {
-      const product = await this.productsRepository.findOne({
-        where: { slug },
-        relations: ['category', 'ratings'],
-      });
+      const qb = this.productsRepository.createQueryBuilder('product')
+        .leftJoinAndSelect('product.category', 'category')
+        .leftJoinAndSelect('product.ratings', 'ratings')
+        .leftJoin('product.licenseKeys', 'licenseKey', 'licenseKey.status = :status', { status: 'Active' })
+        .addSelect('COUNT(licenseKey.id)', 'activeLicenseKeyCount')
+        .where('product.slug = :slug', { slug })
+        .groupBy('product.id')
+        .addGroupBy('category.id')
+        .addGroupBy('ratings.id');
 
+      const result = await qb.getRawAndEntities();
+
+      const product = result.entities[0];
       if (!product) {
         throw new NotFoundException(`Product with slug ${slug} is not found`);
       }
 
-      return product;
+      return {
+        ...product,
+        activeLicenseKeyCount: parseInt(result.raw[0]?.activeLicenseKeyCount ?? '0', 10),
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
