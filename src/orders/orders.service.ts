@@ -17,7 +17,8 @@ import * as moment from 'moment';
 @Injectable()
 export class OrdersService {
   private redisClient: Redis;
-
+  private redisSub: Redis;
+  
   constructor(
     @InjectRepository(Order) private ordersRepository: Repository<Order>,
     @InjectRepository(OrderItem) private orderItemsRepository: Repository<OrderItem>,
@@ -34,21 +35,17 @@ export class OrdersService {
       port: this.configService.get('REDIS_PORT'),
       password: this.configService.get("REDIS_PASS")
     });
-
-    // Subscribe to Redis key expiration events for waitingPayment
-    const sub = new Redis({
+    this.redisSub = new Redis({
       host: this.configService.get('REDIS_HOST'),
       port: this.configService.get('REDIS_PORT'),
       password: this.configService.get("REDIS_PASS")
     });
+  }
 
-    sub.psubscribe('__keyevent@0__:expired', (err, count) => {
-      if (err) {
-        console.error('Failed to subscribe to Redis key expiration events:', err);
-      }
-    });
-
-    sub.on('pmessage', async (pattern, channel, message) => {
+  async onModuleInit() {
+    // Subscribe to key expiration events
+    await this.redisSub.psubscribe('__keyevent@0__:expired');
+    this.redisSub.on('pmessage', async (pattern, channel, message) => {
       if (message.startsWith('waitingPayment:')) {
         const orderId = message.split(':')[1];
         await this.waitingPayment(orderId);
