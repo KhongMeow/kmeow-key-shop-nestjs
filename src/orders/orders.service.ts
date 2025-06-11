@@ -10,7 +10,6 @@ import { LicenseKeysService } from 'src/license-keys/license-keys.service';
 import { BalancesService } from 'src/balances/balances.service';
 import { MailService } from 'src/mails/mail.service';
 import Redis from 'ioredis';
-import { ConfigService } from '@nestjs/config';
 import { Between } from 'typeorm';
 import * as moment from 'moment';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -28,15 +27,8 @@ export class OrdersService {
     private readonly licenseKeysService: LicenseKeysService,
     private readonly balancesService: BalancesService,
     private readonly mailService: MailService,
-    private readonly configService: ConfigService,
     private readonly schedulerRegistry: SchedulerRegistry,
-  ) {
-    this.redisClient = new Redis({
-      host: this.configService.get('REDIS_HOST'),
-      port: this.configService.get('REDIS_PORT'),
-      password: this.configService.get("REDIS_PASS")
-    });
-  }
+  ) {}
 
   private scheduleOrderTimeout(orderId: string, delay: number) {
     const timeout = setTimeout(async () => {
