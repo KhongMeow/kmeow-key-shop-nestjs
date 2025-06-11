@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable, InternalServerErrorException } from '@n
 import { CreateOrderDto } from './dto/create-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { ProductsService } from 'src/products/products.service';
 import { OrderItem } from './entities/order-item.entity';
@@ -13,12 +13,12 @@ import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { Between } from 'typeorm';
 import * as moment from 'moment';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class OrdersService {
   private redisClient: Redis;
-  private redisSub: Redis;
-  
+
   constructor(
     @InjectRepository(Order) private ordersRepository: Repository<Order>,
     @InjectRepository(OrderItem) private orderItemsRepository: Repository<OrderItem>,
@@ -29,32 +29,67 @@ export class OrdersService {
     private readonly balancesService: BalancesService,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    private readonly schedulerRegistry: SchedulerRegistry,
   ) {
     this.redisClient = new Redis({
       host: this.configService.get('REDIS_HOST'),
       port: this.configService.get('REDIS_PORT'),
       password: this.configService.get("REDIS_PASS")
     });
-    this.redisSub = new Redis({
-      host: this.configService.get('REDIS_HOST'),
-      port: this.configService.get('REDIS_PORT'),
-      password: this.configService.get("REDIS_PASS")
-    });
   }
 
-  async onModuleInit() {
-    // Subscribe to key expiration events
-    await this.redisSub.psubscribe('__keyevent@0__:expired');
-    this.redisSub.on('pmessage', async (pattern, channel, message) => {
-      if (message.startsWith('waitingPayment:')) {
-        const orderId = message.split(':')[1];
+  private scheduleOrderTimeout(orderId: string, delay: number) {
+    const timeout = setTimeout(async () => {
+      try {
         await this.waitingPayment(orderId);
+        this.schedulerRegistry.deleteTimeout(`order-timeout-${orderId}`);
+      } catch (error) {
+        console.error(`Error in order timeout for ${orderId}:`, error);
+      }
+    }, delay);
+
+    this.schedulerRegistry.addTimeout(`order-timeout-${orderId}`, timeout);
+    console.log(`Timeout scheduled for order ${orderId}`);
+  }
+
+  // Check and reschedule timeouts on service startup
+  async onModuleInit() {
+    console.log('🚀 Orders service starting up...');
+    
+    const pendingOrders = await this.ordersRepository.find({
+      where: {
+        status: 'Waiting Payment',
+        paymentDeadline: LessThan(new Date())
       }
     });
+
+    console.log(`Found ${pendingOrders.length} expired orders to cancel`);
+    
+    // Cancel already expired orders
+    for (const order of pendingOrders) {
+      await this.waitingPayment(order.id);
+    }
+
+    // Reschedule timeouts for non-expired orders
+    const activeOrders = await this.ordersRepository.find({
+      where: {
+        status: 'Waiting Payment',
+        paymentDeadline: MoreThan(new Date())
+      }
+    });
+
+    console.log(`Found ${activeOrders.length} active orders to reschedule`);
+
+    for (const order of activeOrders) {
+      const remainingTime = order.paymentDeadline.getTime() - Date.now();
+      if (remainingTime > 0) {
+        this.scheduleOrderTimeout(order.id, remainingTime);
+      }
+    }
   }
 
   async create(createOrderDto: CreateOrderDto, username: string): Promise<Order> {
-    try {      
+    try {
       const user = await this.usersService.findOne(username);
 
       const order = new Order();
@@ -86,8 +121,14 @@ export class OrdersService {
         totalOrderedPrice += product.price * orderItem.quantity;
       }
 
-      await this.changeStatus(order.id, 'Waiting Payment');
-      await this.redisClient.set(`waitingPayment:${order.id}`, 'waiting', 'EX', 10);
+      order.status = 'Waiting Payment';
+
+      // Store payment deadline in database instead of setTimeout
+      order.paymentDeadline = new Date(Date.now() + 10 * 1000);
+      await this.ordersRepository.save(order);
+
+      // Schedule the timeout
+      this.scheduleOrderTimeout(order.id, 10 * 1000);
 
       return order;
     } catch (error) {
@@ -99,7 +140,7 @@ export class OrdersService {
     try {
       const order = await this.findOne(orderId);
       if (order.status === 'Waiting Payment') {
-        await this.changeStatus(orderId, 'Cancelled');
+        order.status = 'Cancelled';
         order.cancelledAt = new Date();
         await this.ordersRepository.save(order);
 
@@ -138,20 +179,35 @@ export class OrdersService {
       // Decrease user balance
       await this.balancesService.decreaseAmount(user.balance.slug, totalOrderedPrice);
       order.paidAt = new Date();
+      order.status = 'Paid';
       await this.ordersRepository.save(order);
-      await this.changeStatus(orderId, 'Paid');
       await this.redisClient.del(`waitingPayment:${orderId}`);
+      
+      // Cancel the scheduled timeout when payment is confirmed
+      try {
+        this.schedulerRegistry.deleteTimeout(`order-timeout-${orderId}`);
+        console.log(`Timeout cancelled for order ${orderId}`);
+      } catch (error) {
+        // Timeout might not exist, ignore
+        console.log(`No timeout found for order ${orderId}`);
+      }
 
-      // Start Delivering
-      await this.mailService.sendMail(
-        order.email,
-        `Your License Key(s) from K'meow Key Shop`,
-        `Your order with id ${orderId} has been confirmed. Here is your license key(s): 
-        ${order.orderItems.map(item => item.licenseKeys.map(licenseKey => licenseKey.key).join(', ')).join(', ')}`
-      );
-      order.deliveredAt = new Date();
-      await this.changeStatus(orderId, 'Delivered');
-      await this.ordersRepository.save(order);
+      try {
+        // Start Delivering
+        await this.mailService.sendMail(
+          order.email,
+          `Your License Key(s) from K'meow Key Shop`,
+          `Your order with id ${orderId} has been confirmed. Here is your license key(s): 
+          ${order.orderItems.map(item => item.licenseKeys.map(licenseKey => licenseKey.key).join(', ')).join(', ')}`
+        );
+        order.deliveredAt = new Date();
+        order.status = 'Delivered';
+        await this.ordersRepository.save(order);
+      } catch (error) {
+        order.status = 'Failed to Deliver';
+        await this.ordersRepository.save(order);
+        throw new InternalServerErrorException('Failed to send confirmation email');
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

@@ -10,6 +10,7 @@ import { ProductsModule } from 'src/products/products.module';
 import { LicenseKeysModule } from 'src/license-keys/license-keys.module';
 import { BalancesModule } from 'src/balances/balances.module';
 import { MailModule } from 'src/mails/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MailModule } from 'src/mails/mail.module';
     forwardRef(() => LicenseKeysModule),
     BalancesModule,
     MailModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

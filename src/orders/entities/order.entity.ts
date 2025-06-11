@@ -25,6 +25,10 @@ export class Order {
   @Column({ nullable: true })
   paidAt: Date;
 
+  // The deadline for payment, after which the order will be cancelled if not paid
+  @Column({ type: 'timestamp', nullable: true })
+  paymentDeadline: Date;
+
   @Column({ nullable: true })
   deliveredAt: Date;
 
