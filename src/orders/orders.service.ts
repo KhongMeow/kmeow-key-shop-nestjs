@@ -116,11 +116,11 @@ export class OrdersService {
       order.status = 'Waiting Payment';
 
       // Store payment deadline in database instead of setTimeout
-      order.paymentDeadline = new Date(Date.now() + 10 * 1000);
+      order.paymentDeadline = new Date(Date.now() + 5 * 60 * 1000);
       await this.ordersRepository.save(order);
 
       // Schedule the timeout
-      this.scheduleOrderTimeout(order.id, 10 * 1000);
+      this.scheduleOrderTimeout(order.id, 5 * 60 * 1000);
 
       return order;
     } catch (error) {
