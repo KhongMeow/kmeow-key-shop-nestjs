@@ -85,6 +85,7 @@ export class OrdersService {
       const user = await this.usersService.findOne(username);
 
       const order = new Order();
+      order.id = `KKS${Date.now()}`
       order.email = createOrderDto.email;
       order.user = user;
       order.status = 'Order Created';
