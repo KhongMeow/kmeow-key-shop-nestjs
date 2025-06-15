@@ -19,7 +19,8 @@ export class OrdersController {
   }
 
   @Post('confirm-payment')
-  confirmPayment(@Body() orderId: string, @ActiveUser() user: ActiveUserData) {
+  confirmPayment(@Body() body:{ orderId: string }, @ActiveUser() user: ActiveUserData) {
+    const orderId = body.orderId;
     const username = user.username;
     return this.ordersService.confirmPayment(orderId, username);
   }
