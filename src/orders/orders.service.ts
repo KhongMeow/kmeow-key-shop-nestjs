@@ -9,15 +9,12 @@ import { OrderItem } from './entities/order-item.entity';
 import { LicenseKeysService } from 'src/license-keys/license-keys.service';
 import { BalancesService } from 'src/balances/balances.service';
 import { MailService } from 'src/mails/mail.service';
-import Redis from 'ioredis';
 import { Between } from 'typeorm';
 import * as moment from 'moment';
 import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class OrdersService {
-  private redisClient: Redis;
-
   constructor(
     @InjectRepository(Order) private ordersRepository: Repository<Order>,
     @InjectRepository(OrderItem) private orderItemsRepository: Repository<OrderItem>,
@@ -148,7 +145,7 @@ export class OrdersService {
     }
   }
 
-  async confirmPayment(orderId: string, username: string) {
+  async confirmPayment(orderId: string, username: string): Promise<{ status: number, message: string }> {
     try {
       const order = await this.findOne(orderId);
       const user = await this.usersService.findOne(username);
@@ -164,17 +161,22 @@ export class OrdersService {
       let totalOrderedPrice = 0;
       for (const item of order.orderItems) {
         for (const licenseKey of item.licenseKeys) {
-          await this.licenseKeysService.changeStatus(licenseKey.id, 'Sold');
           totalOrderedPrice += licenseKey.product.price
         }
       }
 
       // Decrease user balance
       await this.balancesService.decreaseAmount(user.balance.slug, totalOrderedPrice);
+
+      for (const item of order.orderItems) {
+        for (const licenseKey of item.licenseKeys) {
+          await this.licenseKeysService.changeStatus(licenseKey.id, 'Sold');
+        }
+      }
+
       order.paidAt = new Date();
       order.status = 'Paid';
       await this.ordersRepository.save(order);
-      await this.redisClient.del(`waitingPayment:${orderId}`);
       
       // Cancel the scheduled timeout when payment is confirmed
       try {
@@ -201,6 +203,11 @@ export class OrdersService {
         await this.ordersRepository.save(order);
         throw new InternalServerErrorException('Failed to send confirmation email');
       }
+
+      return { 
+        status: 200,
+        message: 'Payment confirmed and order delivered successfully'
+      };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -298,7 +305,7 @@ export class OrdersService {
           id,
           user: { id: user?.id }
         },
-        relations: ['user', 'orderItems.product', 'orderItems.licenseKeys'],
+        relations: ['user', 'orderItems.product', 'orderItems.licenseKeys', 'orderItems.licenseKeys.product'],
       });
 
       if(user && !order) {
