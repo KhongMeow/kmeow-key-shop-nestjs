@@ -91,6 +91,14 @@ export class UsersController {
     return this.usersService.isExistEmail(email);
   }
 
+  @Post('is-exist-email-auth')
+  @UseInterceptors(FileInterceptor(''))
+  isExistEmailAuth(@Body('email') email: string, @ActiveUser() user: ActiveUserData) {
+    if (user.email !== email) {
+      return this.usersService.isExistEmail(email);
+    }
+  }
+
   @Patch()
   @UseInterceptors(FileInterceptor(''))
   async update(@ActiveUser() user: ActiveUserData, @Body() updateUserDto: UpdateUserDto) {
