@@ -282,7 +282,7 @@ export class OrdersService {
         skip,
         take,
         order: {
-          [order || 'id']: direction || 'DESC',
+          [order || 'id']: direction || 'ASC',
         },
       });
   
