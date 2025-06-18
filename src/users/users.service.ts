@@ -86,6 +86,26 @@ export class UsersService {
     }
   }
 
+  async findOneWithPassword(username: string) {
+    try {
+      const user = await this.usersRepository.createQueryBuilder('user')
+        .addSelect('user.password')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('user.balance', 'balance')
+        .where('user.username = :username',
+        { username: username })
+        .getOne();
+
+      if (!user) {
+        throw new NotFoundException(`User with username ${username} is not found`);
+      }
+
+      return user;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async myProfile(username: string) {
     try {
       const user = await this.usersRepository.findOne({
@@ -125,7 +145,7 @@ export class UsersService {
 
   async changePassword(username: string, changePasswordDto: ChangePasswordDto) {
     try {
-      const user = await this.findOne(username);
+      const user = await this.findOneWithPassword(username);
       
       const isPasswordCorrect = await this.hashingService.compare(
         changePasswordDto.currentPassword,

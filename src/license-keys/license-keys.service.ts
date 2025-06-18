@@ -76,6 +76,32 @@ export class LicenseKeysService {
     }
   }
 
+  async getDailyLicenseKeyStats(): Promise<{ date: string; total: number; totalPrice: number, status: string }[]> {
+    try {
+      const qb = this.licenseKeysRepository.createQueryBuilder('licenseKey')
+        .leftJoin('licenseKey.product', 'product')
+        .select("TO_CHAR(licenseKey.createdAt, 'YYYY-MM-DD')", 'date')
+        .addSelect('COUNT(licenseKey.id)', 'total')
+        .addSelect('SUM(product.price)', 'totalPrice')
+        .addSelect('licenseKey.status', 'status')
+        .where('licenseKey.status = :status', { status: 'Sold' })
+        .groupBy("TO_CHAR(licenseKey.createdAt, 'YYYY-MM-DD')")
+        .addGroupBy('licenseKey.status');
+
+      qb.orderBy('date', 'ASC');
+
+      const result = await qb.getRawMany();
+      return result.map(row => ({
+        date: row.date,
+        total: Number(row.total),
+        totalPrice: Number(row.totalPrice) || 0,
+        status: row.status,
+      }));
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async findAll(productSlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<LicenseKey[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;

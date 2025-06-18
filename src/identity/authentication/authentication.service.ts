@@ -114,13 +114,13 @@ export class AuthenticationService {
 
   async signIn(signInDto: SignInDto) {
     try {
-      const user = await this.usersRepository.findOne({
-        where: [
-          { username: signInDto.usernameOrEmail },
-          { email: signInDto.usernameOrEmail },
-        ],
-        relations: ['role', 'balance'],
-      });
+      const user = await this.usersRepository.createQueryBuilder('user')
+        .addSelect('user.password')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('user.balance', 'balance')
+        .where('user.username = :usernameOrEmail OR user.email = :usernameOrEmail',
+        { usernameOrEmail: signInDto.usernameOrEmail })
+        .getOne();
 
       if (!user) {
         throw new NotFoundException(`Incorrect username or email!`);

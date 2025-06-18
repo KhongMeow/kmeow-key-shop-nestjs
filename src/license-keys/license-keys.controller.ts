@@ -43,6 +43,11 @@ export class LicenseKeysController {
     return this.licenseKeysService.findAll(productSlug, page, limit, order, direction);
   }
 
+  @Get('daily-stats')
+  async getDailyStats() {
+    return this.licenseKeysService.getDailyLicenseKeyStats();
+  }
+
   @Get(':id')
   @Permissions('select-license-key')
   findOne(@Param('id') id: string) {
