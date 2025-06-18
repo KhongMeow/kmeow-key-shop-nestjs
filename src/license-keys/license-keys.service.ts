@@ -90,6 +90,7 @@ export class LicenseKeysService {
         take,
         order: {
           [order || 'id']: direction || 'ASC',
+          status: 'ASC',
         },
       });
 
