@@ -89,8 +89,8 @@ export class LicenseKeysService {
         skip,
         take,
         order: {
-          [order || 'id']: direction || 'ASC',
           status: 'ASC',
+          [order || 'id']: direction || 'ASC',
         },
       });
 
