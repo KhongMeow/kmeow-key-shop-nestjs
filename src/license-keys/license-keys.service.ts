@@ -76,16 +76,35 @@ export class LicenseKeysService {
     }
   }
 
-  async getDailyLicenseKeyStats(): Promise<{ date: string; total: number; totalPrice: number, status: string }[]> {
+  async getLicenseKeyStats(
+    groupBy: 'dayly' | 'weekly' | 'monthly' | 'yearly' = 'dayly'
+  ): Promise<{ date: string; total: number; totalPrice: number; status: string }[]> {
     try {
+      let dateFormat: string;
+      switch (groupBy) {
+        case 'weekly':
+          dateFormat = "TO_CHAR(licenseKey.updatedAt, 'IYYY-IW')"; // ISO week
+          break;
+        case 'monthly':
+          dateFormat = "TO_CHAR(licenseKey.updatedAt, 'YYYY-MM')";
+          break;
+        case 'yearly':
+          dateFormat = "TO_CHAR(licenseKey.updatedAt, 'YYYY')";
+          break;
+        case 'dayly':
+        default:
+          dateFormat = "TO_CHAR(licenseKey.updatedAt, 'YYYY-MM-DD')";
+          break;
+      }
+
       const qb = this.licenseKeysRepository.createQueryBuilder('licenseKey')
         .leftJoin('licenseKey.product', 'product')
-        .select("TO_CHAR(licenseKey.updatedAt, 'YYYY-MM-DD')", 'date')
+        .select(`${dateFormat}`, 'date')
         .addSelect('COUNT(licenseKey.id)', 'total')
         .addSelect('SUM(product.price)', 'totalPrice')
         .addSelect('licenseKey.status', 'status')
         .where('licenseKey.status = :status', { status: 'Sold' })
-        .groupBy("TO_CHAR(licenseKey.updatedAt, 'YYYY-MM-DD')")
+        .groupBy(`${dateFormat}`)
         .addGroupBy('licenseKey.status');
 
       qb.orderBy('date', 'ASC');

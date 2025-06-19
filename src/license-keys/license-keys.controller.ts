@@ -43,9 +43,11 @@ export class LicenseKeysController {
     return this.licenseKeysService.findAll(productSlug, page, limit, order, direction);
   }
 
-  @Get('daily-stats')
-  async getDailyStats() {
-    return this.licenseKeysService.getDailyLicenseKeyStats();
+  @Get('stats/:groupBy')
+  async getStats(@Param('groupBy') groupBy: string) {
+    const allowedGroups = ['dayly', 'weekly', 'monthly', 'yearly'] as const;
+    const groupByTyped = allowedGroups.includes(groupBy as any) ? groupBy as typeof allowedGroups[number] : undefined;
+    return this.licenseKeysService.getLicenseKeyStats(groupByTyped);
   }
 
   @Get(':id')
