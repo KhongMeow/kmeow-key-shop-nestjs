@@ -80,12 +80,12 @@ export class LicenseKeysService {
     try {
       const qb = this.licenseKeysRepository.createQueryBuilder('licenseKey')
         .leftJoin('licenseKey.product', 'product')
-        .select("TO_CHAR(licenseKey.createdAt, 'YYYY-MM-DD')", 'date')
+        .select("TO_CHAR(licenseKey.updatedAt, 'YYYY-MM-DD')", 'date')
         .addSelect('COUNT(licenseKey.id)', 'total')
         .addSelect('SUM(product.price)', 'totalPrice')
         .addSelect('licenseKey.status', 'status')
         .where('licenseKey.status = :status', { status: 'Sold' })
-        .groupBy("TO_CHAR(licenseKey.createdAt, 'YYYY-MM-DD')")
+        .groupBy("TO_CHAR(licenseKey.updatedAt, 'YYYY-MM-DD')")
         .addGroupBy('licenseKey.status');
 
       qb.orderBy('date', 'ASC');
