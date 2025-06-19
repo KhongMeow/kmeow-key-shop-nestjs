@@ -77,7 +77,7 @@ export class LicenseKeysService {
   }
 
   async getLicenseKeyStats(
-    groupBy: 'dayly' | 'weekly' | 'monthly' | 'yearly' = 'dayly'
+    groupBy: 'daily' | 'weekly' | 'monthly' | 'yearly' = 'daily'
   ): Promise<{ date: string; total: number; totalPrice: number; status: string }[]> {
     try {
       let dateFormat: string;
@@ -91,7 +91,7 @@ export class LicenseKeysService {
         case 'yearly':
           dateFormat = "TO_CHAR(licenseKey.updatedAt, 'YYYY')";
           break;
-        case 'dayly':
+        case 'daily':
         default:
           dateFormat = "TO_CHAR(licenseKey.updatedAt, 'YYYY-MM-DD')";
           break;

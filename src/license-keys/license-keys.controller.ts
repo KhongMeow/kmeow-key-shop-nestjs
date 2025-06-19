@@ -45,7 +45,7 @@ export class LicenseKeysController {
 
   @Get('stats/:groupBy')
   async getStats(@Param('groupBy') groupBy: string) {
-    const allowedGroups = ['dayly', 'weekly', 'monthly', 'yearly'] as const;
+    const allowedGroups = ['daily', 'weekly', 'monthly', 'yearly'] as const;
     const groupByTyped = allowedGroups.includes(groupBy as any) ? groupBy as typeof allowedGroups[number] : undefined;
     return this.licenseKeysService.getLicenseKeyStats(groupByTyped);
   }
