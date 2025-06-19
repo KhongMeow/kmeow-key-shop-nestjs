@@ -46,8 +46,10 @@ export class LicenseKeysController {
   @Get('stats/:groupBy')
   async getStats(@Param('groupBy') groupBy: string) {
     const allowedGroups = ['daily', 'weekly', 'monthly', 'yearly'] as const;
-    const groupByTyped = allowedGroups.includes(groupBy as any) ? groupBy as typeof allowedGroups[number] : undefined;
-    return this.licenseKeysService.getLicenseKeyStats(groupByTyped);
+    if (!allowedGroups.includes(groupBy as any)) {
+      throw new Error('Invalid groupBy value. Allowed values are: daily, weekly, monthly, yearly.');
+    }
+    return this.licenseKeysService.getLicenseKeyStats(groupBy as typeof allowedGroups[number]);
   }
 
   @Get(':id')
