@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { SignUpDto } from './dto/sign-up.dto';
+import * as generator from 'generate-password';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -77,7 +78,11 @@ export class AuthenticationService {
         throw new BadRequestException('Invalid verification code');
       }
       
-      await this.redis.del(`verificationCode:${email}`); // Remove the code from Redis after successful verification
+      // Remove the verification code and set email as verified
+      await Promise.all([
+        this.redis.del(`verificationCode:${email}`),
+        this.redis.set(`emailVerified:${email}`, 'true', 'EX', 300) // Valid for 5 minutes
+      ]);
 
       return {
         status: 200,
@@ -90,6 +95,12 @@ export class AuthenticationService {
 
   async signUp(signUpDto: SignUpDto) {
     try {
+      // Check if email is verified
+      const isEmailVerified = await this.redis.get(`emailVerified:${signUpDto.email}`);
+      if (!isEmailVerified) {
+        throw new BadRequestException('Email must be verified before sign-up');
+      }
+    
       const defaultRole = await this.rolesService.findOne('user');
       if (!defaultRole) {
         throw new Error('Default role not found');
@@ -106,6 +117,8 @@ export class AuthenticationService {
       await this.usersRepository.save(user);
       await this.balancesService.create(user);
 
+      // Clean up the email verification flag after successful signup
+      await this.redis.del(`emailVerified:${signUpDto.email}`);
       return user;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
@@ -135,6 +148,36 @@ export class AuthenticationService {
       }
 
       return await this.generateTokens(user);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async forgotPassword(email: string) {
+    try {
+      // Check if email is verified
+      const isEmailVerified = await this.redis.get(`emailVerified:${email}`);
+      if (!isEmailVerified) {
+        throw new BadRequestException('Email must be verified before sign-up');
+      }
+
+      const user = await this.usersRepository.createQueryBuilder('user')
+        .addSelect('user.password')
+        .where('user.email = :email', { email })
+        .getOne();
+        
+      const newPassword = await this.generateSecurePassword();
+      
+      if (user) {
+        user.password = await this.hashingService.hash(newPassword);
+        await this.usersRepository.save(user);
+        await this.mailsService.sendMail(user.email, "Password Reset", `Your new password is: ${newPassword}`);
+
+        return {
+          statusCode: 200,
+          message: `Password reset successfully! Please check your email for the new password`
+        };
+      }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
@@ -243,5 +286,19 @@ export class AuthenticationService {
         expiresIn,
       }
     );
+  }
+
+
+  
+  private async generateSecurePassword() {
+    return generator.generate({
+      length: 16,
+      numbers: true,
+      symbols: true,
+      uppercase: true,
+      lowercase: true,
+      exclude: '',
+      strict: true,
+    });
   }
 }

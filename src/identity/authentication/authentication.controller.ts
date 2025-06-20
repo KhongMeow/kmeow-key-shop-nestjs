@@ -30,6 +30,12 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  resetPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @Post('refresh-tokens')
   @UseInterceptors(FileInterceptor(''))
   refreshTokens(@Body() refreshTokenDto: RefreshTokenDto) {

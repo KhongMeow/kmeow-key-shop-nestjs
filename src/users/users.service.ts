@@ -13,7 +13,6 @@ import { ConfigType } from '@nestjs/config';
 import { MailService } from 'src/mails/mail.service';
 import { ChangeRoleDto } from './dto/change-role.dto';
 import { BalancesService } from 'src/balances/balances.service';
-import { error } from 'console';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
@@ -169,39 +168,39 @@ export class UsersService {
   }
 
   async update(username: string, updateUserDto: UpdateUserDto) {
-  try {
-    const user = await this.findOne(username);
+    try {
+      const user = await this.findOne(username);
 
-    if (
-      updateUserDto.fullname &&
-      updateUserDto.fullname !== user.fullname
-    ) {
-      await this.isExistUsername(updateUserDto.fullname);
-      user.fullname = updateUserDto.fullname;
-    }
+      if (
+        updateUserDto.fullname &&
+        updateUserDto.fullname !== user.fullname
+      ) {
+        await this.isExistUsername(updateUserDto.fullname);
+        user.fullname = updateUserDto.fullname;
+      }
 
-    if (
-      updateUserDto.email &&
-      updateUserDto.email !== user.email
-    ) {
-      await this.isExistEmail(updateUserDto.email);
-      user.email = updateUserDto.email;
-    }
+      if (
+        updateUserDto.email &&
+        updateUserDto.email !== user.email
+      ) {
+        await this.isExistEmail(updateUserDto.email);
+        user.email = updateUserDto.email;
+      }
 
-    await this.usersRepository.save(user);
-    return {
-      statusCode: 200,
-      message: `User with username ${username} has been updated successfully`,
-    };
-  } catch (error) {
-    if (error instanceof NotFoundException) {
-      throw error;
+      await this.usersRepository.save(user);
+      return {
+        statusCode: 200,
+        message: `User with username ${username} has been updated successfully`,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Failed to update user: ${error.message}`,
+      );
     }
-    throw new InternalServerErrorException(
-      `Failed to update user: ${error.message}`,
-    );
   }
-}
 
   async resetPassword(username: string) {
     try {

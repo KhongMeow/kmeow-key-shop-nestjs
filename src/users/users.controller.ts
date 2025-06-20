@@ -51,17 +51,17 @@ export class UsersController {
     return this.usersService.findOne(username);
   }
 
-  @Post('change-role/:username')
+  @Post('change-role')
   @Permissions('change-role-user')
   @UseInterceptors(FileInterceptor(''))
-  changeRole(@Param('username') username: string, @Body() changeRoleDto: ChangeRoleDto) {
+  changeRole(@Body('username') username: string, @Body() changeRoleDto: ChangeRoleDto) {
     return this.usersService.changeRole(username, changeRoleDto);
   }
 
-  @Post('reset-password/:username')
+  @Post('reset-password')
   @Permissions('reset-password-user')
-  resetPassword(@Param('username') username: string) {
-    return this.usersService.resetPassword(username);
+  resetPassword(@Body('email') email: string) {
+    return this.usersService.resetPassword(email);
   }
 
   @Post('change-password')
