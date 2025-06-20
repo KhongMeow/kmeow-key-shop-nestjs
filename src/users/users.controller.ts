@@ -54,8 +54,8 @@ export class UsersController {
   @Post('change-role')
   @Permissions('change-role-user')
   @UseInterceptors(FileInterceptor(''))
-  changeRole(@Body('username') username: string, @Body() changeRoleDto: ChangeRoleDto) {
-    return this.usersService.changeRole(username, changeRoleDto);
+  changeRole(@Body() changeRoleDto: ChangeRoleDto) {
+    return this.usersService.changeRole(changeRoleDto);
   }
 
   @Post('reset-password')

@@ -123,9 +123,9 @@ export class UsersService {
     }
   }
 
-  async changeRole(username: string, changeRoleDto: ChangeRoleDto) {
+  async changeRole(changeRoleDto: ChangeRoleDto) {
     try {
-      const user = await this.findOne(username);
+      const user = await this.findOne(changeRoleDto.username);
       const newRole = await this.rolesService.findOne(changeRoleDto.newRoleSlug);
       
       if (user) {
