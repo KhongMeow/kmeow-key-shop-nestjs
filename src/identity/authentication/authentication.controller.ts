@@ -30,7 +30,7 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('reset-password')
+  @Post('forgot-password')
   resetPassword(@Body('email') email: string) {
     return this.authService.forgotPassword(email);
   }
