@@ -94,7 +94,7 @@ export class SlidesShowService {
       await this.slidesShowRepository.softDelete(slideShow.id);
       return {
         status: 200,
-        message: `Slide show with slug ${slug} has been deleted`,
+        message: `This slide show has been deleted`,
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

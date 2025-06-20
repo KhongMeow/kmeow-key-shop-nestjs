@@ -101,7 +101,7 @@ export class CategoriesService {
 
       return {
         status: 200,
-        message: `Category with slug ${slug} has been deleted`,
+        message: `This category has been deleted`,
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

@@ -279,7 +279,7 @@ export class LicenseKeysService {
         };
       }
 
-      throw new InternalServerErrorException(`License key with id ${id} can not be deleted because it is not active`);
+      throw new InternalServerErrorException(`License key can not be deleted because it is not active`);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

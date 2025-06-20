@@ -116,7 +116,7 @@ export class BalancesService {
 
       return {
         statusCode: 200,
-        message: `Balance with slug ${slug} has been deleted`,
+        message: `This balance has been deleted`,
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

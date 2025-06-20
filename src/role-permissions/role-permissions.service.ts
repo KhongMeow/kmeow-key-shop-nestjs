@@ -114,7 +114,7 @@ export class RolePermissionsService {
 
       return {
         status: 200,
-        message: `Role Permission with slug ${slug} has been deleted`,
+        message: `This role permission has been deleted`,
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

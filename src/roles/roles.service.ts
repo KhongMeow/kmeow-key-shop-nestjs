@@ -123,7 +123,7 @@ export class RolesService {
 
       return {
         status: 200,
-        message: `Role with slug ${slug} has been deleted`
+        message: `This role has been deleted`
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

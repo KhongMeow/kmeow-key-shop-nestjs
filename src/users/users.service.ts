@@ -190,7 +190,7 @@ export class UsersService {
       await this.usersRepository.save(user);
       return {
         statusCode: 200,
-        message: `User with username ${username} has been updated successfully`,
+        message: `this user has been updated successfully`,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -233,7 +233,7 @@ export class UsersService {
   
       return {
         statusCode: 200,
-        message: `User with username ${username} has been deleted`
+        message: `This user has been deleted`
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

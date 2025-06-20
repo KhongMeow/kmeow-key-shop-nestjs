@@ -157,7 +157,7 @@ export class ProductsService {
 
       return {
         status: 200,
-        message: `Product with slug ${slug} has been deleted`
+        message: `This product has been deleted`
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);

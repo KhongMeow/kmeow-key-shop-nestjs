@@ -98,7 +98,7 @@ export class PermissionsService {
 
       return {
         status: 200,
-        message: `Permission with slug ${slug} has been deleted`
+        message: `This permission has been deleted`
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);

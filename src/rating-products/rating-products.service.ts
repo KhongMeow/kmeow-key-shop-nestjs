@@ -97,7 +97,7 @@ export class RatingProductsService {
       
       return {
         status: 200,
-        message: `Rating with id ${id} has been deleted`
+        message: `This rating has been deleted`
       }
     } catch (error) {
       throw new InternalServerErrorException(error.message);
