@@ -8,7 +8,6 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty()
-  @MinLength(2)
   @IsString()
   fullname: string;
   
@@ -18,7 +17,6 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty()
-  @MinLength(2)
   @IsString()
   @Matches(/^[a-z0-9-]*$/, {
     message: 'Username can only contain lowercase letters, numbers, and dash',
