@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Param, Delete, Get } from '@nestjs/common';
+import { Controller, Post, Body, Param, Delete, Get, Patch } from '@nestjs/common';
 import { RatingProductsService } from './rating-products.service';
 import { CreateRatingProductDto } from './dto/create-rating-product.dto';
 import { UpdateRatingProductDto } from './dto/update-rating-product.dto';
 import { ActiveUser } from 'src/identity/decorators/active-user.decorator';
 import { ActiveUserData } from 'src/identity/interfaces/active-user-data.interface';
+import { Auth } from 'src/identity/authentication/decorators/auth.decorator';
+import { AuthType } from 'src/identity/authentication/enums/auth-type.enum';
 
 @Controller('rating-products')
 export class RatingProductsController {
@@ -20,23 +22,32 @@ export class RatingProductsController {
   }
 
   @Get()
+  @Auth(AuthType.None)
   findAll() {
     return this.ratingProductsService.findAll();
   }
 
   @Get('product/:slug')
+  @Auth(AuthType.None)
   findAllByProduct(@Param('slug') slug: string) {
     return this.ratingProductsService.findAllByProduct(slug);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ratingProductsService.findOne(+id);
+  @Auth(AuthType.None)
+  findOne(@Param('id') id: string, @ActiveUser() user: ActiveUserData) {
+    const username = user.username;
+    return this.ratingProductsService.findOneByUser(+id, username);
   }
 
-  @Post(':id')
-  update(@Param('id') id: string, @Body() updateRatingProductDto: UpdateRatingProductDto) {
-    return this.ratingProductsService.update(+id, updateRatingProductDto);
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateRatingProductDto: UpdateRatingProductDto,
+    @ActiveUser() user: ActiveUserData
+  ) {
+    const username = user.username;
+    return this.ratingProductsService.update(+id, updateRatingProductDto, username);
   }
 
   @Delete(':id')

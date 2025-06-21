@@ -89,6 +89,23 @@ export class RatingProductsService {
       throw new InternalServerErrorException(error.message);
     }
   }
+  
+  async findOneByUser(id: number, username: string): Promise<RatingProduct> {
+    try {
+      const rating = await this.ratingProductRepository.findOne({
+        where: { id, user: { username } },
+        relations: ['user', 'product'],
+      });
+
+      if (!rating) {
+        throw new InternalServerErrorException(`Rating with id ${id} is not found`);
+      }
+
+      return rating;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
 
   private async getAverageRating(productSlug: string): Promise<number> {
     const product = await this.productsService.findOne(productSlug);
@@ -103,9 +120,9 @@ export class RatingProductsService {
     return sumRatings / totalRatings;
   }
 
-  async update(id: number, updateRatingProductDto: UpdateRatingProductDto): Promise<RatingProduct> {
+  async update(id: number, updateRatingProductDto: UpdateRatingProductDto, username: string): Promise<RatingProduct> {
     try {
-      const ratingProduct = await this.findOne(id);
+      const ratingProduct = await this.findOneByUser(id, username);
 
       if (updateRatingProductDto.rating !== undefined) {
         ratingProduct.rating = updateRatingProductDto.rating;
