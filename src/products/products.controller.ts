@@ -39,10 +39,10 @@ export class ProductsController {
     return this.productsService.findAll(categorySlug, page, limit, order, direction);
   }
 
-  @Get(':slug')
+  @Get(':category/:slug')
   @Auth(AuthType.None)
-  findOne(@Param('slug') slug: string) {
-    return this.productsService.findOne(slug);
+  findOne(@Param('category') category: string, @Param('slug') slug: string) {
+    return this.productsService.findOne(slug, category);
   }
 
   @Patch(':slug')

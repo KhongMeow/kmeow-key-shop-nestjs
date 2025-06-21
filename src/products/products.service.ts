@@ -56,7 +56,6 @@ export class ProductsService {
         .addSelect('COUNT(licenseKey.id)', 'stock')
         .groupBy('product.id')
         .addGroupBy('category.id')
-        .having('COUNT(licenseKey.id) > 0')
         .orderBy(`product.${order || 'id'}`, direction?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC');
 
       if (category) {
@@ -76,7 +75,7 @@ export class ProductsService {
     }
   }
 
-  async findOne(slug: string): Promise<any> {
+  async findOne(slug: string, categorySlug?: string | undefined): Promise<any> {
     try {
       const qb = this.productsRepository.createQueryBuilder('product')
         .leftJoinAndSelect('product.category', 'category')
@@ -87,6 +86,11 @@ export class ProductsService {
         .groupBy('product.id')
         .addGroupBy('category.id')
         .addGroupBy('ratings.id');
+
+      // Add category filter if categorySlug is provided
+      if (categorySlug) {
+        qb.andWhere('category.slug = :categorySlug', { categorySlug });
+      }
 
       const result = await qb.getRawAndEntities();
 
