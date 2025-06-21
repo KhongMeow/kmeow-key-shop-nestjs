@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateRatingProductDto } from './dto/create-rating-product.dto';
@@ -34,6 +34,40 @@ export class RatingProductsService {
       
       // Return fresh data with updated product rating
       return await this.findOne(savedRating.id);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async findAll(): Promise<RatingProduct[]> {
+    try {
+      const ratings = await this.ratingProductRepository.find({
+        relations: ['user', 'product'],
+      });
+
+      if (ratings.length === 0) {
+        throw new NotFoundException('Ratings is empty');
+      }
+
+      return ratings;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async findAllByProduct(slug: string): Promise<RatingProduct[]> {
+    try {
+      const product = await this.productsService.findOne(slug);
+      const ratings = await this.ratingProductRepository.find({
+        where: { product: { id: product.id } },
+        relations: ['user', 'product'],
+      });
+
+      if (ratings.length === 0) {
+        throw new NotFoundException(`Ratings for product with slug ${slug} is empty`);
+      }
+
+      return ratings;
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

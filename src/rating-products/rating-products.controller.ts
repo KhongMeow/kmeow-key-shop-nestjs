@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Param, Delete, Get } from '@nestjs/common';
 import { RatingProductsService } from './rating-products.service';
 import { CreateRatingProductDto } from './dto/create-rating-product.dto';
 import { UpdateRatingProductDto } from './dto/update-rating-product.dto';
@@ -17,6 +17,21 @@ export class RatingProductsController {
   ) {
     const username = user.username;
     return this.ratingProductsService.create(productSlug, createRatingProductDto, username);
+  }
+
+  @Get()
+  findAll() {
+    return this.ratingProductsService.findAll();
+  }
+
+  @Get('product/:slug')
+  findAllByProduct(@Param('slug') slug: string) {
+    return this.ratingProductsService.findAllByProduct(slug);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.ratingProductsService.findOne(+id);
   }
 
   @Post(':id')
