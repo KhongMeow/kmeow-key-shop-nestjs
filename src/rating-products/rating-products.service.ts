@@ -42,7 +42,8 @@ export class RatingProductsService {
   async findOne(id: number): Promise<RatingProduct> {
     try {
       const rating = await this.ratingProductRepository.findOne({
-        where: { id }
+        where: { id },
+        relations: ['user', 'product'],
       });
 
       if (!rating) {
