@@ -27,7 +27,7 @@ export class RatingProductsService {
       ratingProduct.user = user;
       ratingProduct.product = product;
       
-      this.ratingProductRepository.save(ratingProduct);
+      await this.ratingProductRepository.save(ratingProduct);
 
       const scaleRating = await this.getAverageRating(product.slug);
       await this.productsService.scaleRating(product.slug, scaleRating);
@@ -77,7 +77,7 @@ export class RatingProductsService {
         ratingProduct.comment = updateRatingProductDto.comment;
       }
 
-      this.ratingProductRepository.save(ratingProduct);
+      await this.ratingProductRepository.save(ratingProduct);
 
       const scaleRating = await this.getAverageRating(ratingProduct.product.slug);
       await this.productsService.scaleRating(ratingProduct.product.slug, scaleRating);
@@ -90,7 +90,7 @@ export class RatingProductsService {
   async remove(id: number): Promise<{ status: number, message: string }> {
     try {
       const ratingProduct = await this.findOne(id);
-      this.ratingProductRepository.softDelete(ratingProduct.id);
+      await this.ratingProductRepository.softDelete(ratingProduct.id);
 
       const scaleRating = await this.getAverageRating(ratingProduct.product.slug);
       await this.productsService.scaleRating(ratingProduct.product.slug, scaleRating);
