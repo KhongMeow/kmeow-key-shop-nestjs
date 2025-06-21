@@ -56,7 +56,6 @@ export class ProductsService {
         .addSelect('COUNT(licenseKey.id)', 'stock')
         .groupBy('product.id')
         .addGroupBy('category.id')
-        .having('COUNT(licenseKey.id) > 0')
         .orderBy(`product.${order || 'id'}`, direction?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC');
 
       if (category) {
