@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConflictException, forwardRef, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateLicenseKeyDto } from './dto/create-license-key.dto';
 import { UpdateLicenseKeyDto } from './dto/update-license-key.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -289,7 +289,7 @@ export class LicenseKeysService {
     const licenseKey = await this.licenseKeysRepository.findOneBy({ key });
 
     if (licenseKey) {
-      throw new InternalServerErrorException(`License key ${key} is already exist`);
+      throw new ConflictException(`License key ${key} is already exist`);
     }
   }
 }
