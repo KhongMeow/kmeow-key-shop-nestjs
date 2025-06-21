@@ -27,11 +27,13 @@ export class RatingProductsService {
       ratingProduct.user = user;
       ratingProduct.product = product;
       
-      await this.ratingProductRepository.save(ratingProduct);
+      const savedRating = await this.ratingProductRepository.save(ratingProduct);
 
       const scaleRating = await this.getAverageRating(product.slug);
       await this.productsService.scaleRating(product.slug, scaleRating);
-      return ratingProduct;
+      
+      // Return fresh data with updated product rating
+      return await this.findOne(savedRating.id);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
