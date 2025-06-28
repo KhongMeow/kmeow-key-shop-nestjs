@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, BadRequestException, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, Query, BadRequestException, UploadedFile, ParseBoolPipe } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -36,7 +36,7 @@ export class ProductsController {
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
-    @Query('hideSoldOut') hideSoldOut?: boolean,
+    @Query('hideSoldOut', new ParseBoolPipe({ optional: true })) hideSoldOut?: boolean,
   ) {
     return this.productsService.findAll(categorySlug, page, limit, order, direction, hideSoldOut);
   }
