@@ -29,7 +29,7 @@ export class ProductsController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'order', required: false })
   @ApiQuery({ name: 'direction', required: false })
-  @ApiQuery({ name: 'showSoldOut', required: false })
+  @ApiQuery({ name: 'hideSoldOut', required: false })
   findAll(
     @Query('categorySlug') categorySlug?: string,
     @Query('page') page?: number,
