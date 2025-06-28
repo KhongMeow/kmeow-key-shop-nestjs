@@ -36,9 +36,9 @@ export class ProductsController {
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
-    @Query('showSoldOut') showSoldOut?: boolean,
+    @Query('hideSoldOut') hideSoldOut?: boolean,
   ) {
-    return this.productsService.findAll(categorySlug, page, limit, order, direction, showSoldOut);
+    return this.productsService.findAll(categorySlug, page, limit, order, direction, hideSoldOut);
   }
 
   @Get(':category/:slug')
