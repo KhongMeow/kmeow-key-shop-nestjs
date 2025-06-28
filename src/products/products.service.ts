@@ -43,7 +43,7 @@ export class ProductsService {
     }
   }
 
-  async findAll(categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string): Promise<any[]> {
+  async findAll(categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string, showSoldOut?: boolean): Promise<any[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
@@ -61,6 +61,11 @@ export class ProductsService {
       if (category) {
         qb.where('product.category = :categoryId', { categoryId: category.id });
       }
+
+      if (!showSoldOut) {
+        qb.having('COUNT(licenseKey.id) > 0');
+      }
+      
       if (skip !== undefined) qb.skip(skip);
       if (take !== undefined) qb.take(take);
 

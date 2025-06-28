@@ -29,14 +29,16 @@ export class ProductsController {
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'order', required: false })
   @ApiQuery({ name: 'direction', required: false })
+  @ApiQuery({ name: 'showSoldOut', required: false })
   findAll(
     @Query('categorySlug') categorySlug?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
+    @Query('showSoldOut') showSoldOut?: boolean,
   ) {
-    return this.productsService.findAll(categorySlug, page, limit, order, direction);
+    return this.productsService.findAll(categorySlug, page, limit, order, direction, showSoldOut);
   }
 
   @Get(':category/:slug')
