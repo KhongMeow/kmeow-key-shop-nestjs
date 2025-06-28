@@ -62,7 +62,7 @@ export class ProductsService {
         qb.where('product.category = :categoryId', { categoryId: category.id });
       }
 
-      if (hideSoldOut) {
+      if (hideSoldOut && hideSoldOut === true) {
         qb.having('COUNT(licenseKey.id) > 0');
       }
       
