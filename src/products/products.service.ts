@@ -43,7 +43,7 @@ export class ProductsService {
     }
   }
 
-  async findAll(categorySlug?: string, page?: number, limit?: number, order?: string, direction?: string, hideSoldOut?: boolean): Promise<any[]> {
+  async findAll(categorySlug?: string, search?: string, page?: number, limit?: number, order?: string, direction?: string, hideSoldOut?: boolean): Promise<any[]> {
     try {
       const skip = page && limit ? (page - 1) * limit : undefined;
       const take = limit ? limit : undefined;
@@ -57,6 +57,10 @@ export class ProductsService {
         .groupBy('product.id')
         .addGroupBy('category.id')
         .orderBy(`product.${order || 'id'}`, direction?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC');
+
+      if (search) {
+        qb.where('product.name ILIKE :search', { search: `${search}%` });
+      }
 
       if (category) {
         qb.where('product.category = :categoryId', { categoryId: category.id });

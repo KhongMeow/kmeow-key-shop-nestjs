@@ -25,6 +25,7 @@ export class ProductsController {
   @Get()
   @Auth(AuthType.None)
   @ApiQuery({ name: 'categorySlug', required: false })
+  @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'order', required: false })
@@ -32,13 +33,14 @@ export class ProductsController {
   @ApiQuery({ name: 'hideSoldOut', required: false })
   findAll(
     @Query('categorySlug') categorySlug?: string,
+    @Query('search') search?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Query('order') order?: string,
     @Query('direction') direction?: string,
     @Query('hideSoldOut', new ParseBoolPipe({ optional: true })) hideSoldOut?: boolean,
   ) {
-    return this.productsService.findAll(categorySlug, page, limit, order, direction, hideSoldOut);
+    return this.productsService.findAll(categorySlug, search, page, limit, order, direction, hideSoldOut);
   }
 
   @Get(':slug')
