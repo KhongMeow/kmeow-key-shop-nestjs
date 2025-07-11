@@ -46,7 +46,6 @@ export class BalancesController {
   }
 
   @Post('increase-my-amount')
-  @Permissions('increase-amount')
   increaseMyAmount(@ActiveUser() user: ActiveUserData, @Body('amount') amount: number) {
     return this.balancesService.increaseMyAmount(user.username, amount);
   }

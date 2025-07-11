@@ -84,7 +84,7 @@ export class BalancesService {
   async increaseMyAmount(username: string, amount: number) {
     try {
       const balance = await this.myBalance(username);
-      balance.amount += amount;
+      balance.amount = parseFloat(balance.amount.toString()) + amount;
 
       return await this.balancesRepository.save(balance);
     } catch (error) {
@@ -95,7 +95,7 @@ export class BalancesService {
   async increaseAmount(slug: string, amount: number) {
     try {
       const balance = await this.findOne(slug);
-      balance.amount += amount;
+      balance.amount = parseFloat(balance.amount.toString()) + amount;
 
       return await this.balancesRepository.save(balance);
     } catch (error) {
