@@ -45,6 +45,12 @@ export class BalancesController {
     return this.balancesService.remove(slug);
   }
 
+  @Post('increase-my-amount')
+  @Permissions('increase-amount')
+  increaseMyAmount(@ActiveUser() user: ActiveUserData, @Body('amount') amount: number) {
+    return this.balancesService.increaseMyAmount(user.username, amount);
+  }
+
   @Post('increase-amount')
   @Permissions('increase-amount')
   increaseAmount(@Body() balanceSlug: string, amount: number) {

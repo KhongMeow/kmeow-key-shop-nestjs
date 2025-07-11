@@ -81,6 +81,17 @@ export class BalancesService {
     }
   }
 
+  async increaseMyAmount(username: string, amount: number) {
+    try {
+      const balance = await this.myBalance(username);
+      balance.amount += amount;
+
+      return await this.balancesRepository.save(balance);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
   async increaseAmount(slug: string, amount: number) {
     try {
       const balance = await this.findOne(slug);
